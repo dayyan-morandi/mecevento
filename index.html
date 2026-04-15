@@ -416,7 +416,7 @@
 
     .speaker-photo {
       height: 200px;
-      background: linear-gradient(135deg, #1A1A2E 0%, #2A2A3E 100%);
+      background: linear-gradient(135deg, var(--dark) 0%, var(--card) 100%);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -580,10 +580,15 @@
 
     /* FORM */
     .form-card {
-      background: var(--card);
-      border: 1px solid var(--border);
+      background: rgba(19, 19, 29, 0.45);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(196,255,10,.2);
       border-radius: 16px;
       padding: 40px 36px;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.04) inset,
+        0 24px 64px rgba(0,0,0,.4);
     }
 
     @media (max-width: 480px) {
@@ -602,131 +607,6 @@
       margin-bottom: 28px;
     }
 
-    .form-group {
-      margin-bottom: 18px;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--lgray);
-      margin-bottom: 7px;
-    }
-
-    .form-group label .req { color: var(--green); margin-left: 2px; }
-
-    .form-group input,
-    .form-group select {
-      width: 100%;
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius: 8px;
-      padding: 12px 16px;
-      font-size: 15px;
-      font-family: 'Inter', Arial, sans-serif;
-      color: var(--white);
-      transition: border-color var(--trans), box-shadow var(--trans);
-      outline: none;
-      appearance: none;
-      -webkit-appearance: none;
-    }
-
-    .form-group select {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888899' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 14px center;
-      padding-right: 36px;
-      cursor: pointer;
-    }
-
-    .form-group select option {
-      background: var(--dark);
-      color: var(--white);
-    }
-
-    .form-group input::placeholder { color: rgba(255,255,255,.25); }
-
-    .form-group input:focus,
-    .form-group select:focus {
-      border-color: var(--green);
-      box-shadow: 0 0 0 3px rgba(196,255,10,.12);
-    }
-
-    .form-group input.error,
-    .form-group select.error { border-color: var(--red); }
-
-    .form-error-msg {
-      font-size: 12px;
-      color: var(--red);
-      margin-top: 5px;
-      display: none;
-    }
-
-    .form-error-msg.visible { display: block; }
-
-    /* LGPD checkbox */
-    .form-lgpd {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      margin: 22px 0 24px;
-      padding: 16px;
-      background: rgba(196,255,10,.04);
-      border: 1px solid rgba(196,255,10,.15);
-      border-radius: 8px;
-    }
-
-    .form-lgpd input[type="checkbox"] {
-      width: 18px;
-      min-width: 18px;
-      height: 18px;
-      margin-top: 2px;
-      accent-color: var(--green);
-      cursor: pointer;
-    }
-
-    .form-lgpd label {
-      font-size: 13px;
-      color: var(--lgray);
-      line-height: 1.55;
-      cursor: pointer;
-    }
-
-    .form-lgpd label a {
-      color: var(--green);
-      text-decoration: underline;
-    }
-
-    .form-submit {
-      width: 100%;
-      background: var(--green);
-      color: var(--black);
-      font-size: 15px;
-      font-weight: 800;
-      letter-spacing: .05em;
-      text-transform: uppercase;
-      padding: 16px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      transition: background var(--trans), transform var(--trans), box-shadow var(--trans);
-      font-family: 'Inter', Arial, sans-serif;
-    }
-
-    .form-submit:hover {
-      background: var(--green2);
-      transform: translateY(-1px);
-      box-shadow: 0 6px 24px rgba(196,255,10,.25);
-    }
-
-    .form-submit:disabled {
-      opacity: .5;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
-
     .form-note {
       text-align: center;
       font-size: 12px;
@@ -734,33 +614,146 @@
       margin-top: 14px;
     }
 
-    /* SUCCESS STATE */
-    .form-success {
-      display: none;
-      text-align: center;
-      padding: 40px 20px;
+    /* ── RD STATION FORM OVERRIDES ───────────────────────── */
+    .form-card form,
+    .form-card .bricks--component-form {
+      font-family: 'Inter', Arial, sans-serif !important;
     }
 
-    .form-success.visible { display: block; }
-
-    .success-ico {
-      width: 64px; height: 64px;
-      background: rgba(196,255,10,.12);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
-      margin: 0 auto 20px;
+    /* Labels */
+    .form-card label,
+    .form-card .bricks-form--label {
+      display: block !important;
+      font-size: 13px !important;
+      font-weight: 600 !important;
+      color: var(--lgray) !important;
+      margin-bottom: 6px !important;
+      font-family: 'Inter', Arial, sans-serif !important;
     }
 
-    .success-title {
-      font-size: 22px;
-      font-weight: 700;
-      margin-bottom: 10px;
+    /* Field groups */
+    .form-card .bricks-form--group,
+    .form-card .rd-form-group {
+      margin-bottom: 16px !important;
     }
 
-    .success-sub { font-size: 15px; color: var(--lgray); line-height: 1.6; }
+    /* Inputs e selects */
+    .form-card input[type="text"],
+    .form-card input[type="email"],
+    .form-card input[type="tel"],
+    .form-card input[type="number"],
+    .form-card select,
+    .form-card textarea {
+      width: 100% !important;
+      background: rgba(255,255,255,.06) !important;
+      border: 1px solid rgba(255,255,255,.12) !important;
+      border-radius: 8px !important;
+      padding: 12px 16px !important;
+      font-size: 15px !important;
+      font-family: 'Inter', Arial, sans-serif !important;
+      color: var(--white) !important;
+      transition: border-color var(--trans), box-shadow var(--trans) !important;
+      outline: none !important;
+      appearance: none !important;
+      -webkit-appearance: none !important;
+      box-sizing: border-box !important;
+    }
+
+    .form-card input::placeholder,
+    .form-card textarea::placeholder {
+      color: rgba(255,255,255,.25) !important;
+    }
+
+    .form-card input:focus,
+    .form-card select:focus,
+    .form-card textarea:focus {
+      border-color: var(--green) !important;
+      box-shadow: 0 0 0 3px rgba(196,255,10,.12) !important;
+    }
+
+    /* Select option (dropdown nativo) */
+    .form-card select option {
+      background: var(--dark) !important;
+      color: var(--white) !important;
+    }
+
+    /* Checkbox LGPD / optin */
+    .form-card input[type="checkbox"] {
+      accent-color: var(--green) !important;
+      cursor: pointer !important;
+    }
+
+    .form-card input[type="checkbox"] + label,
+    .form-card .bricks-form--optin label {
+      font-size: 13px !important;
+      color: var(--lgray) !important;
+      line-height: 1.55 !important;
+      cursor: pointer !important;
+    }
+
+    /* Bloco de optin/LGPD */
+    .form-card .bricks-form--optin,
+    .form-card .rd-form-optin {
+      display: flex !important;
+      align-items: flex-start !important;
+      gap: 10px !important;
+      padding: 14px !important;
+      background: rgba(196,255,10,.04) !important;
+      border: 1px solid rgba(196,255,10,.15) !important;
+      border-radius: 8px !important;
+      margin: 18px 0 !important;
+    }
+
+    /* Botão de envio */
+    .form-card input[type="submit"],
+    .form-card button[type="submit"],
+    .form-card .rd-button,
+    .form-card .bricks-form--submit input,
+    .form-card .bricks-form--submit button {
+      width: 100% !important;
+      background: var(--green) !important;
+      color: var(--black) !important;
+      font-size: 15px !important;
+      font-weight: 800 !important;
+      letter-spacing: .05em !important;
+      text-transform: uppercase !important;
+      padding: 16px !important;
+      border-radius: 8px !important;
+      border: none !important;
+      cursor: pointer !important;
+      transition: background var(--trans), transform var(--trans), box-shadow var(--trans) !important;
+      font-family: 'Inter', Arial, sans-serif !important;
+      margin-top: 8px !important;
+      box-sizing: border-box !important;
+    }
+
+    .form-card input[type="submit"]:hover,
+    .form-card button[type="submit"]:hover,
+    .form-card .rd-button:hover {
+      background: var(--green2) !important;
+      transform: translateY(-1px) !important;
+      box-shadow: 0 6px 24px rgba(196,255,10,.25) !important;
+    }
+
+    /* Remove backgrounds do RD Station — via classe e via ID para máxima especificidade */
+    .form-card [class*="bricks"],
+    .form-card [class*="rd-"],
+    #evento-marketing-esporte-clube-8ecddb510e9fe280419c,
+    #evento-marketing-esporte-clube-8ecddb510e9fe280419c > *,
+    #evento-marketing-esporte-clube-8ecddb510e9fe280419c div,
+    #evento-marketing-esporte-clube-8ecddb510e9fe280419c section,
+    #evento-marketing-esporte-clube-8ecddb510e9fe280419c form {
+      background-color: transparent !important;
+      background-image: none !important;
+      color: var(--white) !important;
+      font-family: 'Inter', Arial, sans-serif !important;
+      box-shadow: none !important;
+    }
+
+    /* Links dentro do form */
+    .form-card a {
+      color: var(--green) !important;
+    }
 
     /* ── SECTION 6: FAQ ──────────────────────────────────── */
     .faq-section { background: var(--dark); }
@@ -1141,12 +1134,14 @@
 
         <!-- Coluna esquerda: detalhes -->
         <div>
-          <span class="section-label">Inscrição Gratuita</span>
-          <h2 class="section-title" id="inscricao-titulo">Garanta seu lugar</h2>
-          <div class="divider" aria-hidden="true"></div>
-          <p style="color:var(--lgray);font-size:16px;line-height:1.65;margin-bottom:8px;">
-            O MEC Summit 2026 é 100% gratuito para o presencial. As vagas são limitadas a 200 pessoas — inscrição obrigatória para garantir o seu lugar.
-          </p>
+          <div class="section-header">
+            <span class="section-label">Inscrição Gratuita</span>
+            <h2 class="section-title" id="inscricao-titulo">Garanta seu lugar</h2>
+            <div class="divider" aria-hidden="true"></div>
+            <p class="section-sub">
+              O MEC Summit 2026 é 100% gratuito para o presencial. As vagas são limitadas a 200 pessoas — inscrição obrigatória para garantir o seu lugar.
+            </p>
+          </div>
 
           <div class="detalhes-list" role="list" aria-label="Detalhes do evento">
 
@@ -1368,94 +1363,30 @@
     });
 
 
-    // ── PHONE MASK ───────────────────────────────────────────
-    const telInput = document.getElementById('telefone');
-    telInput.addEventListener('input', e => {
-      let v = e.target.value.replace(/\D/g, '').slice(0, 11);
-      if (v.length <= 10) {
-        v = v.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3');
-      } else {
-        v = v.replace(/^(\d{2})(\d{5})(\d{0,4}).*/, '($1) $2-$3');
-      }
-      e.target.value = v;
-    });
+    // ── RD STATION: remove backgrounds inline injetados ─────────
+    const rdContainer = document.getElementById('evento-marketing-esporte-clube-8ecddb510e9fe280419c');
+    const skipTags = new Set(['INPUT', 'SELECT', 'TEXTAREA', 'BUTTON']);
 
-
-    // ── FORM VALIDATION & SUBMIT ─────────────────────────────
-    const form     = document.getElementById('inscricaoForm');
-    const wrapper  = document.getElementById('formWrapper');
-    const success  = document.getElementById('formSuccess');
-    const submitBtn = document.getElementById('submitBtn');
-
-    function showError(fieldId, show) {
-      const field = document.getElementById(fieldId);
-      const error = document.getElementById(fieldId + '-error');
-      if (!field || !error) return;
-      if (show) {
-        field.classList.add('error');
-        error.classList.add('visible');
-      } else {
-        field.classList.remove('error');
-        error.classList.remove('visible');
-      }
+    function stripBg(el) {
+      if (skipTags.has(el.tagName)) return;
+      el.style.removeProperty('background');
+      el.style.removeProperty('background-color');
+      el.style.removeProperty('background-image');
+      el.style.removeProperty('box-shadow');
     }
 
-    function validateEmail(email) {
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (rdContainer) {
+      const observer = new MutationObserver(mutations => {
+        mutations.forEach(({ addedNodes }) => {
+          addedNodes.forEach(node => {
+            if (node.nodeType !== 1) return;
+            stripBg(node);
+            node.querySelectorAll('*').forEach(stripBg);
+          });
+        });
+      });
+      observer.observe(rdContainer, { childList: true, subtree: true });
     }
-
-    function validatePhone(phone) {
-      return phone.replace(/\D/g, '').length >= 10;
-    }
-
-    // Live validation: clear errors on input
-    ['nome','email','telefone','cidade','area','origem'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.addEventListener('input', () => showError(id, false));
-      if (el) el.addEventListener('change', () => showError(id, false));
-    });
-
-    document.getElementById('lgpd').addEventListener('change', () => {
-      showError('lgpd', false);
-    });
-
-    form.addEventListener('submit', e => {
-      e.preventDefault();
-
-      const nome    = document.getElementById('nome').value.trim();
-      const email   = document.getElementById('email').value.trim();
-      const tel     = document.getElementById('telefone').value.trim();
-      const cidade  = document.getElementById('cidade').value.trim();
-      const area    = document.getElementById('area').value;
-      const origem  = document.getElementById('origem').value;
-      const lgpd    = document.getElementById('lgpd').checked;
-
-      let valid = true;
-
-      if (nome.length < 3)            { showError('nome', true);    valid = false; }
-      if (!validateEmail(email))       { showError('email', true);   valid = false; }
-      if (!validatePhone(tel))         { showError('telefone', true); valid = false; }
-      if (cidade.length < 2)           { showError('cidade', true);  valid = false; }
-      if (!area)                       { showError('area', true);    valid = false; }
-      if (!origem)                     { showError('origem', true);  valid = false; }
-      if (!lgpd)                       { showError('lgpd', true);    valid = false; }
-
-      if (!valid) return;
-
-      // Loading state
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Confirmando inscrição…';
-
-      // Simula envio (integrar com Sympla / backend real aqui)
-      setTimeout(() => {
-        wrapper.style.display = 'none';
-        success.classList.add('visible');
-        success.focus();
-
-        // Scroll suave até a mensagem de sucesso
-        success.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 1200);
-    });
 
 
     // ── SMOOTH SCROLL para links da navbar ────────────────────
