@@ -21,16 +21,16 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --black:   #13131D;
-      --dark:    #1C1C2A;
-      --card:    #22222F;
-      --green:   #C4FF0A;
-      --green2:  #a8e000;
+      --black:   #0C0C1E;
+      --dark:    #13132A;
+      --card:    #1C1C3A;
+      --green:   #F5B800;
+      --green2:  #D4A200;
       --white:   #FFFFFF;
-      --gray:    #888899;
+      --gray:    #8888AA;
       --lgray:   #CCCCDD;
       --red:     #FF4C4C;
-      --border:  rgba(196,255,10,.15);
+      --border:  rgba(245,184,0,.15);
       --radius:  12px;
       --trans:   .25s ease;
     }
@@ -60,7 +60,7 @@
       position: fixed;
       top: 0; left: 0; right: 0;
       z-index: 100;
-      background: rgba(19,19,29,.92);
+      background: rgba(12,12,30,.92);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
       padding: 14px 0;
@@ -109,8 +109,8 @@
       position: relative;
       overflow: hidden;
       background:
-        radial-gradient(ellipse 80% 60% at 60% 40%, rgba(196,255,10,.07) 0%, transparent 70%),
-        radial-gradient(ellipse 50% 40% at 10% 80%, rgba(196,255,10,.04) 0%, transparent 60%),
+        radial-gradient(ellipse 80% 60% at 60% 40%, rgba(245,184,0,.07) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 10% 80%, rgba(46,46,142,.15) 0%, transparent 60%),
         var(--black);
     }
 
@@ -119,8 +119,8 @@
       position: absolute;
       inset: 0;
       background-image:
-        linear-gradient(rgba(196,255,10,.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(196,255,10,.04) 1px, transparent 1px);
+        linear-gradient(rgba(46,46,142,.12) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(46,46,142,.12) 1px, transparent 1px);
       background-size: 60px 60px;
       pointer-events: none;
     }
@@ -129,8 +129,8 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: rgba(196,255,10,.1);
-      border: 1px solid rgba(196,255,10,.3);
+      background: rgba(245,184,0,.1);
+      border: 1px solid rgba(245,184,0,.3);
       border-radius: 100px;
       padding: 6px 16px;
       font-size: 12px;
@@ -226,7 +226,7 @@
     .btn-primary:hover {
       background: var(--green2);
       transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(196,255,10,.3);
+      box-shadow: 0 8px 30px rgba(245,184,0,.3);
     }
 
     .btn-ghost {
@@ -357,12 +357,12 @@
       transition: transform var(--trans);
     }
 
-    .pilar:hover { border-color: rgba(196,255,10,.4); transform: translateY(-4px); }
+    .pilar:hover { border-color: rgba(245,184,0,.4); transform: translateY(-4px); }
     .pilar:hover::before { transform: scaleX(1); }
 
     .pilar-ico {
       width: 48px; height: 48px;
-      background: rgba(196,255,10,.1);
+      background: rgba(245,184,0,.1);
       border-radius: 10px;
       display: flex;
       align-items: center;
@@ -410,7 +410,7 @@
     }
 
     .speaker-card:hover {
-      border-color: rgba(196,255,10,.4);
+      border-color: rgba(245,184,0,.4);
       transform: translateY(-4px);
     }
 
@@ -440,8 +440,8 @@
 
     .speaker-tag {
       display: inline-block;
-      background: rgba(196,255,10,.1);
-      border: 1px solid rgba(196,255,10,.25);
+      background: rgba(245,184,0,.1);
+      border: 1px solid rgba(245,184,0,.25);
       border-radius: 4px;
       font-size: 11px;
       font-weight: 600;
@@ -499,12 +499,12 @@
       transition: border-color var(--trans);
     }
 
-    .pq-item:hover { border-color: rgba(196,255,10,.3); }
+    .pq-item:hover { border-color: rgba(245,184,0,.3); }
 
     .pq-check {
       width: 28px; height: 28px;
       min-width: 28px;
-      background: rgba(196,255,10,.12);
+      background: rgba(245,184,0,.12);
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -552,8 +552,8 @@
     .detalhe-ico {
       width: 42px; height: 42px;
       min-width: 42px;
-      background: rgba(196,255,10,.08);
-      border: 1px solid rgba(196,255,10,.2);
+      background: rgba(245,184,0,.08);
+      border: 1px solid rgba(245,184,0,.2);
       border-radius: 8px;
       display: flex;
       align-items: center;
@@ -580,10 +580,10 @@
 
     /* FORM */
     .form-card {
-      background: rgba(19, 19, 29, 0.45);
+      background: rgba(12, 12, 30, 0.55);
       backdrop-filter: blur(24px);
       -webkit-backdrop-filter: blur(24px);
-      border: 1px solid rgba(196,255,10,.2);
+      border: 1px solid rgba(245,184,0,.2);
       border-radius: 16px;
       padding: 40px 36px;
       box-shadow:
@@ -668,7 +668,7 @@
     .form-card select:focus,
     .form-card textarea:focus {
       border-color: var(--green) !important;
-      box-shadow: 0 0 0 3px rgba(196,255,10,.12) !important;
+      box-shadow: 0 0 0 3px rgba(245,184,0,.12) !important;
     }
 
     /* Select option (dropdown nativo) */
@@ -698,8 +698,8 @@
       align-items: flex-start !important;
       gap: 10px !important;
       padding: 14px !important;
-      background: rgba(196,255,10,.04) !important;
-      border: 1px solid rgba(196,255,10,.15) !important;
+      background: rgba(245,184,0,.04) !important;
+      border: 1px solid rgba(245,184,0,.15) !important;
       border-radius: 8px !important;
       margin: 18px 0 !important;
     }
@@ -732,7 +732,7 @@
     .form-card .rd-button:hover {
       background: var(--green2) !important;
       transform: translateY(-1px) !important;
-      box-shadow: 0 6px 24px rgba(196,255,10,.25) !important;
+      box-shadow: 0 6px 24px rgba(245,184,0,.25) !important;
     }
 
     /* Remove backgrounds do RD Station — via classe e via ID para máxima especificidade */
@@ -772,8 +772,8 @@
       transition: border-color var(--trans);
     }
 
-    .faq-item:hover { border-color: rgba(196,255,10,.3); }
-    .faq-item.open  { border-color: rgba(196,255,10,.4); }
+    .faq-item:hover { border-color: rgba(245,184,0,.3); }
+    .faq-item.open  { border-color: rgba(245,184,0,.4); }
 
     .faq-q {
       width: 100%;
@@ -809,7 +809,7 @@
     }
 
     .faq-item.open .faq-arrow {
-      background: rgba(196,255,10,.12);
+      background: rgba(245,184,0,.12);
       transform: rotate(45deg);
     }
 
@@ -870,8 +870,8 @@
     }
 
     .social-link:hover {
-      background: rgba(196,255,10,.1);
-      border-color: rgba(196,255,10,.4);
+      background: rgba(245,184,0,.1);
+      border-color: rgba(245,184,0,.4);
     }
 
     .footer-links {
