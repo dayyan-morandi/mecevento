@@ -1,166 +1,94 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Meu QR Code — MEC Summit 2026</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
-  <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{
-      font-family:'Inter',Arial,sans-serif;
-      background:#0C0C1E;
-      color:#fff;
-      min-height:100vh;
-      display:flex;align-items:center;justify-content:center;
-      padding:32px 20px;
-    }
-    .card{
-      background:#1C1C3A;
-      border:1px solid rgba(245,184,0,.2);
-      border-radius:20px;
-      padding:40px 32px;
-      max-width:440px;
-      width:100%;
-      text-align:center;
-    }
-    .brand{font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#F5B800;margin-bottom:20px}
-    h1{font-size:20px;font-weight:800;margin-bottom:6px}
-    .nome{font-size:26px;font-weight:900;color:#F5B800;margin-bottom:24px}
-    .qr-frame{
-      background:#fff;
-      border-radius:14px;
-      padding:16px;
-      display:inline-block;
-      margin-bottom:20px;
-    }
-    .qr-frame img{display:block;width:200px;height:200px}
-    .tip{
-      background:rgba(245,184,0,.08);
-      border:1px solid rgba(245,184,0,.2);
-      border-radius:10px;
-      padding:12px 16px;
-      font-size:13px;color:#CCCCDD;
-      line-height:1.6;margin-bottom:20px;
-    }
-    .info{font-size:13px;color:#8888AA;line-height:1.7;margin-bottom:24px}
-    .info strong{color:#CCCCDD}
-    a.back{
-      display:inline-flex;align-items:center;gap:6px;
-      padding:10px 20px;border-radius:8px;
-      font-size:13px;font-weight:700;text-decoration:none;
-      color:#CCCCDD;border:1px solid rgba(255,255,255,.15);
-    }
-    /* formulário */
-    .form-wrap p{font-size:14px;color:#8888AA;line-height:1.6;margin-bottom:16px;text-align:left}
-    .row{display:flex;gap:8px;margin-bottom:6px}
-    input[type=email]{
-      flex:1;background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:8px;padding:12px 14px;
-      font-size:14px;color:#fff;font-family:inherit;outline:none;
-    }
-    input[type=email]:focus{border-color:#F5B800}
-    input::placeholder{color:rgba(255,255,255,.25)}
-    button{
-      background:#F5B800;color:#0C0C1E;
-      border:none;border-radius:8px;
-      padding:12px 18px;font-size:14px;
-      font-weight:700;cursor:pointer;font-family:inherit;
-      white-space:nowrap;
-    }
-    .err{color:#ef4444;font-size:12px;display:none;margin-top:4px}
-    .loading{color:#8888AA;font-size:14px;padding:20px 0}
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>QR Code — MEC Summit 2026</title>
+<style>
+body{margin:0;padding:20px;background:#0C0C1E;color:#fff;font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;}
+.card{background:#1C1C3A;border:2px solid #F5B800;border-radius:16px;padding:32px;max-width:420px;width:100%;text-align:center;}
+.gold{color:#F5B800;}
+h2{font-size:20px;margin-bottom:8px;}
+.nome{font-size:24px;font-weight:900;color:#F5B800;margin-bottom:20px;}
+.qr{background:#fff;border-radius:10px;padding:12px;display:inline-block;margin-bottom:16px;}
+.qr img{display:block;width:200px;height:200px;}
+.info{font-size:13px;color:#aaa;line-height:1.7;margin-bottom:16px;}
+.tip{background:rgba(245,184,0,.1);border:1px solid rgba(245,184,0,.3);border-radius:8px;padding:10px 14px;font-size:13px;color:#ccc;margin-bottom:16px;}
+input{width:100%;padding:10px 12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:8px;color:#fff;font-size:15px;margin-bottom:8px;box-sizing:border-box;}
+button{width:100%;background:#F5B800;color:#0C0C1E;border:none;border-radius:8px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;}
+.err{color:#f44;font-size:12px;display:none;margin-bottom:8px;}
+#debug{color:#f5b800;font-size:11px;margin-top:12px;word-break:break-all;}
+</style>
 </head>
 <body>
 <div class="card">
-  <p class="brand">MEC Summit 2026 · Check-in</p>
-  <div id="app"><p class="loading">Carregando…</p></div>
+  <p class="gold" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px;">MEC SUMMIT 2026 · CHECK-IN</p>
+  <div id="root"></div>
 </div>
 
 <script>
 var BASE = 'https://dayyan-morandi.github.io/mecevento/';
 
-function render(html) {
-  document.getElementById('app').innerHTML = html;
+function mostrarQR(email, nome) {
+  var token = btoa(email + '||' + nome);
+  var qrData = BASE + 'admin.html?t=' + token;
+  var imgSrc = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=4&data='
+               + encodeURIComponent(qrData);
+
+  var exibicao = nome ? nome.split(' ')[0] : email;
+
+  document.getElementById('root').innerHTML = ''
+    + '<h2>Olá,</h2>'
+    + '<p class="nome">' + exibicao + '</p>'
+    + '<div class="qr"><img src="' + imgSrc + '" alt="QR Code"/></div>'
+    + '<div class="tip">📱 Mostre este QR code na entrada do evento</div>'
+    + '<div class="info">'
+    +   '<strong style="color:#ccc">📅 25 de Maio de 2026</strong> · 19h00<br/>'
+    +   '<strong style="color:#ccc">📍 ESPM São Paulo</strong> · Portas: 18h30'
+    + '</div>'
+    + '<a href="' + BASE + '" style="color:#F5B800;font-size:13px;">← Voltar ao site</a>'
+    + '<p id="debug">QR: ' + qrData.substring(0,60) + '...</p>';
 }
 
-function telaQR(email, nome) {
-  // Token simples: base64 de "email|nome"
-  var token = btoa(unescape(encodeURIComponent(email + '|' + nome)));
-  var url   = BASE + 'admin.html?token=' + token;
+function mostrarForm() {
+  document.getElementById('root').innerHTML = ''
+    + '<div style="font-size:36px;margin-bottom:12px">🎟️</div>'
+    + '<h2>Seu QR Code de Acesso</h2>'
+    + '<p style="font-size:14px;color:#aaa;margin:12px 0;">Digite o e-mail da inscrição:</p>'
+    + '<input type="email" id="em" placeholder="seu@email.com"/>'
+    + '<p class="err" id="er">E-mail inválido.</p>'
+    + '<button onclick="enviar()">Gerar QR Code</button>'
+    + '<p style="margin-top:12px;font-size:12px;color:#888">Não inscrito? '
+    +   '<a href="' + BASE + '#inscricao" style="color:#F5B800">Inscreva-se →</a></p>';
 
-  // QR gerado por API pública como <img> diretamente no DOM
-  var src = 'https://api.qrserver.com/v1/create-qr-code/'
-    + '?size=200x200&margin=4'
-    + '&data=' + encodeURIComponent(url);
-
-  render(
-    '<h1>Olá,</h1>' +
-    '<p class="nome">' + (nome ? nome.split(' ')[0] : email) + '</p>' +
-    '<div class="qr-frame">' +
-      '<img src="' + src + '" alt="QR Code" ' +
-           'onerror="this.src=\'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(url) + '\'" />' +
-    '</div>' +
-    '<div class="tip"><strong style="color:#F5B800">Como usar:</strong> Mostre este QR code na entrada do evento.</div>' +
-    '<div class="info">' +
-      '<strong>📅 25 de Maio de 2026</strong> · 19h00<br/>' +
-      '<strong>📍 ESPM São Paulo</strong> · Portas abrem às 18h30' +
-    '</div>' +
-    '<a class="back" href="' + BASE + '">← Voltar ao site</a>'
-  );
+  var inp = document.getElementById('em');
+  if (inp) inp.addEventListener('keydown', function(e){ if(e.key==='Enter') enviar(); });
 }
 
-function telaForm(erro) {
-  render(
-    '<div class="form-wrap">' +
-    '<div style="font-size:36px;margin-bottom:12px">🎟️</div>' +
-    '<h1 style="margin-bottom:12px">Seu QR code</h1>' +
-    '<p>Digite o e-mail usado na inscrição:</p>' +
-    '<div class="row">' +
-      '<input type="email" id="inp" placeholder="seu@email.com" />' +
-      '<button onclick="submeter()">Gerar</button>' +
-    '</div>' +
-    '<p class="err" id="err">' + (erro || 'Digite um e-mail válido.') + '</p>' +
-    '<p style="margin-top:16px;font-size:12px;color:#8888AA">' +
-      'Não se inscreveu? <a href="' + BASE + '#inscricao" style="color:#F5B800">Inscreva-se grátis →</a>' +
-    '</p>' +
-    '</div>'
-  );
-  var inp = document.getElementById('inp');
-  if (inp) {
-    inp.focus();
-    inp.addEventListener('keydown', function(e){ if(e.key==='Enter') submeter(); });
-  }
-}
-
-function submeter() {
-  var inp   = document.getElementById('inp');
-  var errEl = document.getElementById('err');
-  var email = inp ? inp.value.trim() : '';
-  if (!email || !email.includes('@')) {
-    if (errEl) errEl.style.display = 'block';
+function enviar() {
+  var em = document.getElementById('em');
+  var er = document.getElementById('er');
+  if (!em || !em.value.trim().includes('@')) {
+    if (er) er.style.display = 'block';
     return;
   }
-  telaQR(email, '');
+  mostrarQR(em.value.trim(), '');
 }
 
-// Inicialização
-(function() {
-  try {
-    var p     = new URLSearchParams(location.search);
-    var email = (p.get('email') || '').trim();
-    var nome  = (p.get('nome')  || p.get('name') || '').trim();
-    if (email) {
-      telaQR(email, nome);
-    } else {
-      telaForm();
-    }
-  } catch(e) {
-    render('<p style="color:#ef4444;font-size:14px;padding:20px">Erro: ' + e.message + '</p>');
+// Arranque
+try {
+  var p = new URLSearchParams(location.search);
+  var email = (p.get('email') || '').trim();
+  var nome  = (p.get('nome')  || p.get('name') || '').trim();
+  if (email) {
+    mostrarQR(email, nome);
+  } else {
+    mostrarForm();
   }
-})();
+} catch(e) {
+  document.getElementById('root').innerHTML =
+    '<p style="color:red">Erro: ' + e.message + '</p>';
+}
 </script>
 </body>
 </html>
