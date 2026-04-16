@@ -1403,67 +1403,63 @@
 
     // ── RD STATION: redirect para obrigado.html após inscrição ──
     (function () {
-      const BASE = 'https://dayyan-morandi.github.io/mecevento/';
+      const BASE     = 'https://dayyan-morandi.github.io/mecevento/';
+      const RD_ID    = 'evento-marketing-esporte-clube-8ecddb510e9fe280419c';
+      let capturedEmail = '';
+      let capturedNome  = '';
+      let redirectDone  = false;
 
-      function getFormEmail() {
-        const inputs = document.querySelectorAll(
-          '#evento-marketing-esporte-clube-8ecddb510e9fe280419c input[type="email"], ' +
-          '#evento-marketing-esporte-clube-8ecddb510e9fe280419c input[name="email"]'
-        );
-        return inputs.length ? inputs[0].value : '';
+      function doRedirect() {
+        if (redirectDone) return;
+        redirectDone = true;
+        window.location.href = BASE + 'obrigado.html'
+          + '?email=' + encodeURIComponent(capturedEmail)
+          + '&nome='  + encodeURIComponent(capturedNome);
       }
 
-      function getFormNome() {
-        const inputs = document.querySelectorAll(
-          '#evento-marketing-esporte-clube-8ecddb510e9fe280419c input[name="name"], ' +
-          '#evento-marketing-esporte-clube-8ecddb510e9fe280419c input[name="nome"]'
-        );
-        return inputs.length ? inputs[0].value : '';
-      }
+      const container = document.getElementById(RD_ID);
+      if (!container) return;
 
-      function redirectObrigado() {
-        const email = getFormEmail();
-        const nome  = getFormNome();
-        const url   = BASE + 'obrigado.html'
-          + (email ? '?email=' + encodeURIComponent(email) : '')
-          + (nome  ? (email ? '&' : '?') + 'nome=' + encodeURIComponent(nome) : '');
-        setTimeout(() => { window.location.href = url; }, 800);
-      }
-
-      // Detecta sucesso via MutationObserver (classe de sucesso do RD Station)
-      const rdForm = document.getElementById('evento-marketing-esporte-clube-8ecddb510e9fe280419c');
-      if (rdForm) {
-        const successObserver = new MutationObserver(function (mutations) {
-          for (const m of mutations) {
-            for (const node of m.addedNodes) {
-              if (node.nodeType !== 1) continue;
-              const isSuccess =
-                node.classList.contains('bricks-form--sent') ||
-                node.classList.contains('bricks--state-success') ||
-                node.querySelector && (
-                  node.querySelector('.bricks-form--sent') ||
-                  node.querySelector('.bricks--state-success')
-                );
-              if (isSuccess) redirectObrigado();
-            }
-          }
-        });
-        successObserver.observe(rdForm, { childList: true, subtree: true });
-      }
-
-      // Fallback: intercepta submit do formulário
-      document.addEventListener('submit', function (e) {
-        const form = e.target.closest('#evento-marketing-esporte-clube-8ecddb510e9fe280419c form');
-        if (form) {
-          const email = (form.querySelector('[type="email"]') || {}).value || '';
-          const nome  = (form.querySelector('[name="name"],[name="nome"]') || {}).value || '';
-          setTimeout(() => {
-            window.location.href = BASE + 'obrigado.html'
-              + '?email=' + encodeURIComponent(email)
-              + '&nome='  + encodeURIComponent(nome);
-          }, 1500);
-        }
+      // 1. Captura email/nome enquanto o usuário digita (antes do submit)
+      document.addEventListener('input', function (e) {
+        if (!container.contains(e.target)) return;
+        const el = e.target;
+        if (el.type === 'email' || el.name === 'email') capturedEmail = el.value.trim();
+        if (el.name === 'name'  || el.name === 'nome')  capturedNome  = el.value.trim();
       }, true);
+
+      // 2. Intercepta submit — captura valores e agenda redirect
+      document.addEventListener('submit', function (e) {
+        if (!container.contains(e.target)) return;
+        const emailEl = e.target.querySelector('[type="email"],[name="email"]');
+        const nomeEl  = e.target.querySelector('[name="name"],[name="nome"]');
+        if (emailEl && emailEl.value) capturedEmail = emailEl.value.trim();
+        if (nomeEl  && nomeEl.value)  capturedNome  = nomeEl.value.trim();
+        // Agenda redirect como fallback (RD Station demora ~2s para exibir sucesso)
+        setTimeout(doRedirect, 3000);
+      }, true);
+
+      // 3. MutationObserver — dispara assim que RD Station mostra tela de sucesso
+      const SUCCESS_PATTERNS = [
+        'bricks-form--sent', 'bricks--state-success', 'bricks--sent',
+        'rd-success', 'form--success', 'conversion-success'
+      ];
+
+      new MutationObserver(function (mutations) {
+        for (const m of mutations) {
+          // Nós adicionados
+          for (const node of m.addedNodes) {
+            if (node.nodeType !== 1) continue;
+            const html = node.outerHTML || '';
+            if (SUCCESS_PATTERNS.some(p => html.includes(p))) { doRedirect(); return; }
+          }
+          // Mudanças de classe em elementos existentes
+          if (m.type === 'attributes' && m.attributeName === 'class') {
+            const cls = m.target.className || '';
+            if (SUCCESS_PATTERNS.some(p => cls.includes(p))) { doRedirect(); return; }
+          }
+        }
+      }).observe(container, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
     })();
   </script>
 

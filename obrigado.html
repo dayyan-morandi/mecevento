@@ -260,6 +260,24 @@
         🎟️ Ver meu QR code de acesso
       </a>
 
+      <!-- Fallback: input de e-mail caso o redirect não traga os params -->
+      <div id="qr-fallback" style="display:none;margin-top:4px;">
+        <p style="font-size:12px;color:var(--gray);margin-bottom:8px;text-align:left;">
+          Seu e-mail não foi identificado automaticamente. Digite para gerar o QR code:
+        </p>
+        <div style="display:flex;gap:8px;">
+          <input type="email" id="email-fallback" placeholder="seu@email.com"
+            style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);
+                   border-radius:8px;padding:10px 14px;font-size:14px;color:#fff;
+                   font-family:Inter,sans-serif;outline:none;" />
+          <button onclick="abrirQRManual()"
+            style="background:var(--gold);color:var(--black);border:none;border-radius:8px;
+                   padding:10px 16px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;">
+            Gerar QR
+          </button>
+        </div>
+      </div>
+
       <a
         id="btn-whatsapp"
         class="btn btn-whatsapp"
@@ -281,18 +299,35 @@
   </div>
 
   <script>
-    // Preenche o link do QR code com os dados da URL (vindos do redirect do RD Station)
     (function () {
       const params = new URLSearchParams(window.location.search);
-      const name  = params.get('nome')  || params.get('name')  || '';
+      const nome  = params.get('nome')  || params.get('name')  || '';
       const email = params.get('email') || '';
+      const qrBtn = document.getElementById('btn-qr');
 
       if (email) {
-        const qrBtn = document.getElementById('btn-qr');
         qrBtn.href = 'checkin.html?email=' + encodeURIComponent(email)
-                   + (name ? '&nome=' + encodeURIComponent(name) : '');
+                   + (nome ? '&nome=' + encodeURIComponent(nome) : '');
+      } else {
+        // Sem email na URL: mostra fallback para o usuário digitar
+        document.getElementById('qr-fallback').style.display = 'block';
       }
     })();
+
+    function abrirQRManual() {
+      const email = document.getElementById('email-fallback').value.trim();
+      if (!email || !email.includes('@')) {
+        document.getElementById('email-fallback').style.borderColor = '#ef4444';
+        return;
+      }
+      window.location.href = 'checkin.html?email=' + encodeURIComponent(email);
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && document.activeElement.id === 'email-fallback') {
+        abrirQRManual();
+      }
+    });
   </script>
 
 </body>
