@@ -7,8 +7,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
-  <!-- jsQR para decodificar foto do QR -->
-  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js" onerror="console.warn('jsQR CDN falhou')"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -37,7 +35,7 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* ── LOGIN ──────────────────────────────────────────── */
+    /* ── LOGIN ──────────────────────────────────────────────── */
     #screen-login {
       min-height: 100vh;
       display: flex;
@@ -57,6 +55,10 @@
       max-width: 400px;
       width: 100%;
       text-align: center;
+    }
+
+    @media (max-width: 480px) {
+      .login-card { padding: 32px 24px; }
     }
 
     .login-card h1 { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
@@ -97,13 +99,13 @@
       text-decoration: none;
     }
 
-    .btn-gold { background: var(--gold); color: var(--black); }
+    .btn-gold    { background: var(--gold);  color: var(--black); }
     .btn-gold:hover { background: var(--gold2); }
     .btn-outline { background: transparent; color: var(--lgray); border: 1px solid rgba(255,255,255,.15); }
     .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
-    .btn-green { background: var(--green); color: #fff; }
+    .btn-green   { background: var(--green); color: #fff; }
     .btn-green:hover { background: #16a34a; }
-    .btn-red { background: transparent; color: var(--red); border: 1px solid rgba(239,68,68,.3); }
+    .btn-red     { background: transparent; color: var(--red); border: 1px solid rgba(239,68,68,.3); }
     .btn-red:hover { background: rgba(239,68,68,.1); }
 
     #login-error {
@@ -113,7 +115,84 @@
       display: none;
     }
 
-    /* ── APP ────────────────────────────────────────────── */
+    /* ── SUCCESS OVERLAY (check-in via URL) ──────────────────── */
+    #screen-success {
+      display: none;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background:
+        radial-gradient(ellipse 70% 60% at 50% 0%, rgba(34,197,94,.08) 0%, transparent 70%),
+        var(--black);
+    }
+
+    .success-card {
+      background: var(--card);
+      border: 2px solid rgba(34,197,94,.4);
+      border-radius: 20px;
+      padding: 56px 48px;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+    }
+
+    @media (max-width: 480px) {
+      .success-card { padding: 36px 24px; }
+    }
+
+    .success-icon {
+      width: 88px;
+      height: 88px;
+      background: rgba(34,197,94,.12);
+      border: 2px solid rgba(34,197,94,.4);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 28px;
+      font-size: 40px;
+      animation: pop .5s cubic-bezier(.17,.67,.35,1.3) forwards;
+    }
+
+    @keyframes pop {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    .success-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 10px;
+    }
+
+    .success-nome {
+      font-size: clamp(26px, 5vw, 34px);
+      font-weight: 900;
+      color: var(--white);
+      margin-bottom: 6px;
+    }
+
+    .success-email {
+      font-size: 14px;
+      color: var(--gray);
+      margin-bottom: 32px;
+    }
+
+    .success-time {
+      font-size: 13px;
+      color: var(--lgray);
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 8px;
+      padding: 12px 20px;
+      margin-bottom: 28px;
+    }
+
+    /* ── APP ─────────────────────────────────────────────────── */
     #screen-app { display: none; }
 
     .topbar {
@@ -144,11 +223,7 @@
       flex-wrap: wrap;
     }
 
-    .stat {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
+    .stat { display: flex; flex-direction: column; gap: 2px; }
 
     .stat-value {
       font-size: 24px;
@@ -173,7 +248,7 @@
       gap: 20px;
     }
 
-    /* ── SCANNER ────────────────────────────────────────── */
+    /* ── PANEL ───────────────────────────────────────────────── */
     .panel {
       background: var(--card);
       border: 1px solid var(--border);
@@ -200,14 +275,16 @@
 
     .panel-body { padding: 20px; }
 
+    /* ── SCANNER ─────────────────────────────────────────────── */
     #video-wrapper {
       position: relative;
       background: #000;
       border-radius: 8px;
       overflow: hidden;
       aspect-ratio: 4/3;
-      max-height: 280px;
+      max-height: 300px;
       display: none;
+      margin-bottom: 14px;
     }
 
     #video-wrapper video {
@@ -227,29 +304,31 @@
     }
 
     .scan-box {
-      width: 180px;
-      height: 180px;
-      border: 2px solid var(--gold);
-      border-radius: 12px;
-      box-shadow: 0 0 0 9999px rgba(0,0,0,.5);
+      width: 190px;
+      height: 190px;
+      border: 2.5px solid var(--gold);
+      border-radius: 14px;
+      box-shadow: 0 0 0 9999px rgba(0,0,0,.45);
     }
 
     #scan-status {
-      margin-top: 12px;
+      margin-top: 10px;
       font-size: 13px;
       color: var(--gray);
       text-align: center;
+      min-height: 20px;
     }
 
-    /* ── BUSCA MANUAL ───────────────────────────────────── */
-    .search-row {
+    .scanner-btns {
       display: flex;
       gap: 10px;
+      margin-bottom: 14px;
     }
 
+    /* ── BUSCA ───────────────────────────────────────────────── */
+    .search-row { display: flex; gap: 10px; }
     .search-row .input { margin-bottom: 0; }
-
-    .search-row .btn { width: auto; padding: 12px 20px; white-space: nowrap; }
+    .search-row .btn   { width: auto; padding: 12px 20px; white-space: nowrap; }
 
     .results-list {
       margin-top: 16px;
@@ -295,9 +374,9 @@
     }
 
     .badge-present { background: rgba(34,197,94,.15); color: var(--green); }
-    .badge-pending { background: rgba(245,184,0,.12); color: var(--gold); }
+    .badge-pending { background: rgba(245,184,0,.12);  color: var(--gold); }
 
-    /* ── TOAST ──────────────────────────────────────────── */
+    /* ── TOAST ───────────────────────────────────────────────── */
     .toast {
       position: fixed;
       bottom: 24px;
@@ -316,11 +395,11 @@
       pointer-events: none;
     }
 
-    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.show    { transform: translateX(-50%) translateY(0); }
     .toast.success { border-color: rgba(34,197,94,.4); color: var(--green); }
-    .toast.error   { border-color: rgba(239,68,68,.4);  color: var(--red); }
+    .toast.error   { border-color: rgba(239,68,68,.4); color: var(--red); }
 
-    /* ── LISTA DE PRESENÇA ──────────────────────────────── */
+    /* ── TABELA ──────────────────────────────────────────────── */
     .attendance-table {
       width: 100%;
       border-collapse: collapse;
@@ -355,17 +434,17 @@
 </head>
 <body>
 
-  <!-- ── LOGIN ── -->
+  <!-- ── TELA DE LOGIN ── -->
   <div id="screen-login">
     <div class="login-card">
-      <!-- Bloco de confirmação de QR (mostrado quando vem de ?t=TOKEN) -->
-      <div id="qr-confirm-block" style="display:none;
-           background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);
-           border-radius:10px;padding:16px;margin-bottom:20px;text-align:left;">
-        <p style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#22c55e;margin-bottom:6px;">QR CODE LIDO ✓</p>
-        <p style="font-size:18px;font-weight:800;color:#fff;margin-bottom:2px;" id="qr-confirm-nome">—</p>
+      <div id="qr-confirm-block"
+           style="display:none;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.3);
+                  border-radius:10px;padding:16px;margin-bottom:20px;text-align:left;">
+        <p style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+                  color:#22c55e;margin-bottom:6px;">QR CODE LIDO ✓</p>
+        <p style="font-size:20px;font-weight:800;color:#fff;margin-bottom:2px;" id="qr-confirm-nome">—</p>
         <p style="font-size:13px;color:#8888AA;" id="qr-confirm-email">—</p>
-        <p style="font-size:12px;color:#22c55e;margin-top:8px;">Digite a senha abaixo para confirmar o check-in.</p>
+        <p style="font-size:12px;color:#22c55e;margin-top:8px;">Digite a senha para confirmar o check-in.</p>
       </div>
       <p style="font-size:32px;margin-bottom:16px;" id="login-icon">🎟️</p>
       <h1 id="login-title">Admin Check-in</h1>
@@ -376,12 +455,32 @@
     </div>
   </div>
 
-  <!-- ── APP ── -->
+  <!-- ── TELA DE SUCESSO (check-in via URL) ── -->
+  <div id="screen-success" style="display:none;min-height:100vh;align-items:center;
+       justify-content:center;padding:24px;
+       background:radial-gradient(ellipse 70% 60% at 50% 0%,rgba(34,197,94,.08) 0%,transparent 70%),#0C0C1E;">
+    <div class="success-card">
+      <div class="success-icon">✓</div>
+      <p class="success-label">Check-in confirmado</p>
+      <p class="success-nome" id="suc-nome">—</p>
+      <p class="success-email" id="suc-email">—</p>
+      <p class="success-time" id="suc-time">—</p>
+      <button class="btn btn-gold" onclick="irParaApp()" style="margin-bottom:12px;">
+        📋 Ir para o painel
+      </button>
+      <button class="btn btn-outline" onclick="proximoCheckin()">
+        📷 Próximo check-in
+      </button>
+    </div>
+  </div>
+
+  <!-- ── TELA DO APP ── -->
   <div id="screen-app">
 
     <div class="topbar">
       <div class="topbar-title">MEC Summit <span>2026</span> · Check-in</div>
-      <button class="btn btn-outline" style="width:auto;padding:8px 16px;font-size:12px;" onclick="logout()">Sair</button>
+      <button class="btn btn-outline"
+              style="width:auto;padding:8px 16px;font-size:12px;" onclick="logout()">Sair</button>
     </div>
 
     <div class="stats-bar">
@@ -407,17 +506,27 @@
           <span class="panel-title">📷 Escanear QR Code</span>
         </div>
         <div class="panel-body">
-          <p style="font-size:13px;color:var(--gray);margin-bottom:14px;line-height:1.6;">
-            Use a <strong style="color:var(--lgray)">câmera nativa</strong> do celular para ler o QR do inscrito —
-            o link abrirá esta página com o check-in pronto para confirmar.<br/>
-            Ou tire uma foto do QR abaixo:
+
+          <!-- Câmera ao vivo -->
+          <div id="video-wrapper">
+            <video id="video" autoplay muted playsinline></video>
+            <div class="scan-overlay"><div class="scan-box"></div></div>
+          </div>
+
+          <div class="scanner-btns">
+            <button class="btn btn-gold" id="btn-scanner" onclick="toggleScanner()" style="flex:1;">
+              📷 Iniciar câmera
+            </button>
+            <label class="btn btn-outline" style="flex:1;cursor:pointer;">
+              🖼️ Ler foto do QR
+              <input type="file" accept="image/*" capture="environment" id="input-qr-foto"
+                     style="display:none;" onchange="lerFotoQR(this)" />
+            </label>
+          </div>
+
+          <p id="scan-status">
+            Aponte a câmera para o QR code do inscrito — o check-in é feito automaticamente.
           </p>
-          <label class="btn btn-gold" style="cursor:pointer;width:100%;justify-content:center;">
-            📷 Fotografar QR Code
-            <input type="file" accept="image/*" capture="environment" id="input-qr-foto"
-                   style="display:none;" onchange="lerFotoQR(this)" />
-          </label>
-          <p id="scan-status" style="margin-top:10px;font-size:13px;color:var(--gray);"></p>
         </div>
       </div>
 
@@ -428,7 +537,8 @@
         </div>
         <div class="panel-body">
           <div class="search-row">
-            <input type="text" class="input" id="input-busca" placeholder="Nome ou e-mail do inscrito…" oninput="buscar()" />
+            <input type="text" class="input" id="input-busca"
+                   placeholder="Nome ou e-mail do inscrito…" oninput="buscar()" />
           </div>
           <div class="results-list" id="results-list">
             <p class="empty-state">Digite para buscar inscritos.</p>
@@ -436,20 +546,19 @@
         </div>
       </div>
 
-      <!-- Lista de presença -->
+      <!-- Lista de presenças -->
       <div class="panel">
         <div class="panel-header">
           <span class="panel-title">✅ Presenças confirmadas</span>
-          <button class="btn btn-outline" style="width:auto;padding:8px 14px;font-size:12px;" onclick="exportCSV()">Exportar CSV</button>
+          <button class="btn btn-outline"
+                  style="width:auto;padding:8px 14px;font-size:12px;" onclick="exportCSV()">
+            Exportar CSV
+          </button>
         </div>
         <div class="panel-body" style="padding:0;overflow:auto;">
           <table class="attendance-table" id="attendance-table">
             <thead>
-              <tr>
-                <th>Nome</th>
-                <th>E-mail</th>
-                <th>Horário</th>
-              </tr>
+              <tr><th>Nome</th><th>E-mail</th><th>Horário</th></tr>
             </thead>
             <tbody id="attendance-body">
               <tr><td colspan="3" class="empty-state">Nenhuma presença registrada ainda.</td></tr>
@@ -458,85 +567,111 @@
         </div>
       </div>
 
-      <!-- Importar CSV do RD Station -->
+      <!-- Importar CSV -->
       <div class="panel">
         <div class="panel-header">
           <span class="panel-title">📂 Importar inscritos (CSV do RD Station)</span>
         </div>
         <div class="panel-body">
           <p style="font-size:13px;color:var(--gray);margin-bottom:14px;line-height:1.6;">
-            No dia do evento, exporte a lista de leads do RD Station como CSV e importe aqui.
-            Colunas esperadas: <strong style="color:var(--lgray)">email</strong>, <strong style="color:var(--lgray)">nome</strong> (ou name), telefone (opcional).
+            Exporte os leads do RD Station como CSV e importe aqui.<br/>
+            Colunas esperadas: <strong style="color:var(--lgray)">email</strong>,
+            <strong style="color:var(--lgray)">nome</strong> (ou name).
           </p>
           <label class="btn btn-outline" style="cursor:pointer;justify-content:center;">
             📁 Selecionar arquivo CSV
-            <input type="file" accept=".csv" id="input-csv" style="display:none;" onchange="importarCSV(this)" />
+            <input type="file" accept=".csv" id="input-csv"
+                   style="display:none;" onchange="importarCSV(this)" />
           </label>
           <p id="csv-status" style="margin-top:10px;font-size:13px;color:var(--gray);"></p>
         </div>
       </div>
 
     </div><!-- /main -->
-  </div><!-- /app -->
+  </div><!-- /screen-app -->
 
   <div class="toast" id="toast"></div>
 
   <script>
-    // ── CONFIGURAÇÃO ──────────────────────────────────────────
-    const SENHA_ADMIN = 'MEC2026'; // troque antes do evento
-    let GAS_URL = localStorage.getItem('gas_url') || '';
-    let inscritos  = JSON.parse(localStorage.getItem('mec_inscritos')  || '[]');
-    let presencas  = JSON.parse(localStorage.getItem('mec_presencas')  || '[]');
-    let scannerOn  = false;
+    // ── CONFIG ────────────────────────────────────────────────
+    const SENHA_ADMIN = 'MEC2026';
+    const LS_LOGIN    = 'mec_admin_ok';
+
+    let inscritos   = JSON.parse(localStorage.getItem('mec_inscritos')  || '[]');
+    let presencas   = JSON.parse(localStorage.getItem('mec_presencas')  || '[]');
+    let GAS_URL     = localStorage.getItem('gas_url') || '';
+    let scannerOn   = false;
     let videoStream = null;
     let scanInterval = null;
+    let ultimoScan  = '';
+    let ultimoScanTs = 0;
+    let pendingCheckin = null; // { email, nome } vindo de ?t=
 
-    // ── CHECK-IN VIA URL (QR code abre admin.html?t=...) ──
+    // ── PARSE TOKEN DA URL ────────────────────────────────────
     (function () {
       const params = new URLSearchParams(window.location.search);
       const token  = params.get('t') || params.get('token');
       if (!token) return;
+
       try {
         const decoded = atob(token);
         const parts   = decoded.split('||');
         const email   = (parts[0] || '').trim();
         const nome    = (parts[1] || '').trim();
         if (!email) return;
+        pendingCheckin = { email, nome };
+      } catch (e) {
+        console.error('Token inválido', e);
+      }
+    })();
 
-        sessionStorage.setItem('pending_checkin', JSON.stringify({ email, nome }));
+    // ── ESTADO INICIAL ────────────────────────────────────────
+    (function init() {
+      const jaLogado = localStorage.getItem(LS_LOGIN) === '1';
 
-        // Mostra bloco de confirmação na tela de login
+      if (jaLogado && pendingCheckin) {
+        // Já logado + chegou via QR → check-in imediato + tela de sucesso
+        const ok = registrarPresenca(pendingCheckin.email, pendingCheckin.nome, 'qr', true);
+        mostrarSucesso(pendingCheckin.email, pendingCheckin.nome, ok);
+
+      } else if (jaLogado) {
+        // Já logado, sem QR → vai direto para o app
+        mostrarApp();
+
+      } else if (pendingCheckin) {
+        // Não logado mas veio via QR → login com preview do inscrito
         document.getElementById('qr-confirm-block').style.display = 'block';
-        document.getElementById('qr-confirm-nome').textContent  = nome || email;
-        document.getElementById('qr-confirm-email').textContent = email;
+        document.getElementById('qr-confirm-nome').textContent  = pendingCheckin.nome || pendingCheckin.email;
+        document.getElementById('qr-confirm-email').textContent = pendingCheckin.email;
         document.getElementById('login-icon').style.display     = 'none';
         document.getElementById('login-title').textContent      = 'Confirmar Check-in';
         document.getElementById('login-subtitle').textContent   = 'Digite a senha para registrar a presença.';
-        // Foca direto na senha
-        setTimeout(() => { const s = document.getElementById('input-senha'); if(s) s.focus(); }, 100);
-      } catch(e) { console.error('Token inválido', e); }
+        document.getElementById('screen-login').style.display   = 'flex';
+        setTimeout(() => document.getElementById('input-senha').focus(), 100);
+
+      } else {
+        // Tela de login normal
+        document.getElementById('screen-login').style.display = 'flex';
+      }
     })();
 
     // ── LOGIN ─────────────────────────────────────────────────
     function login() {
       const senha = document.getElementById('input-senha').value;
-      if (senha === SENHA_ADMIN) {
-        document.getElementById('screen-login').style.display = 'none';
-        document.getElementById('screen-app').style.display   = 'block';
-        document.getElementById('input-gas-url').value = GAS_URL;
-        atualizarStats();
-        renderPresencas();
-        // Processa check-in pendente (vindo de QR code)
-        const pending = sessionStorage.getItem('pending_checkin');
-        if (pending) {
-          sessionStorage.removeItem('pending_checkin');
-          try {
-            const data = JSON.parse(pending);
-            if (data.email) registrarPresenca(data.email, data.nome || '', 'qr');
-          } catch(e) {}
-        }
-      } else {
+      if (senha !== SENHA_ADMIN) {
         document.getElementById('login-error').style.display = 'block';
+        return;
+      }
+
+      localStorage.setItem(LS_LOGIN, '1');
+      document.getElementById('login-error').style.display = 'none';
+
+      if (pendingCheckin) {
+        document.getElementById('screen-login').style.display = 'none';
+        const ok = registrarPresenca(pendingCheckin.email, pendingCheckin.nome, 'qr', true);
+        mostrarSucesso(pendingCheckin.email, pendingCheckin.nome, ok);
+      } else {
+        mostrarApp();
       }
     }
 
@@ -545,124 +680,183 @@
     });
 
     function logout() {
-      document.getElementById('screen-login').style.display = 'flex';
-      document.getElementById('screen-app').style.display   = 'none';
+      localStorage.removeItem(LS_LOGIN);
       pararScanner();
+      document.getElementById('screen-app').style.display   = 'none';
+      document.getElementById('screen-login').style.display = 'flex';
+      document.getElementById('input-senha').value = '';
     }
 
-    // ── STATS ─────────────────────────────────────────────────
-    function atualizarStats() {
-      const total   = inscritos.length;
-      const present = presencas.length;
-      const pct     = total > 0 ? Math.round((present / total) * 100) : 0;
-      document.getElementById('stat-total').textContent   = total;
-      document.getElementById('stat-present').textContent = present;
-      document.getElementById('stat-pct').textContent     = pct + '%';
+    // ── TELAS ─────────────────────────────────────────────────
+    function mostrarApp() {
+      document.getElementById('screen-login').style.display   = 'none';
+      document.getElementById('screen-success').style.display = 'none';
+      document.getElementById('screen-app').style.display     = 'block';
+      atualizarStats();
+      renderPresencas();
     }
 
-    // ── LER FOTO QR (via input[capture]) ─────────────────────
-    function lerFotoQR(input) {
-      const file = input.files[0];
-      if (!file) return;
-      const status = document.getElementById('scan-status');
-      status.textContent = 'Processando imagem…';
+    function mostrarSucesso(email, nome, jaFez) {
+      document.getElementById('screen-login').style.display   = 'none';
+      document.getElementById('screen-app').style.display     = 'none';
+      document.getElementById('screen-success').style.display = 'flex';
 
-      const img = new Image();
-      const url = URL.createObjectURL(file);
-      img.onload = function () {
-        const canvas = document.createElement('canvas');
-        canvas.width  = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0);
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        URL.revokeObjectURL(url);
+      document.getElementById('suc-nome').textContent  = nome || email;
+      document.getElementById('suc-email').textContent = email;
 
-        // Decodifica usando jsQR (carregado inline abaixo)
-        const code = typeof jsQR !== 'undefined'
-          ? jsQR(imageData.data, imageData.width, imageData.height)
-          : null;
-
-        if (code) {
-          status.textContent = '✅ QR lido com sucesso!';
-          processarQR(code.data);
-        } else {
-          status.textContent = '⚠️ Não foi possível ler o QR. Tente mais perto ou use busca manual.';
-        }
-        // limpa input para permitir nova foto
-        input.value = '';
-      };
-      img.onerror = function () {
-        status.textContent = 'Erro ao carregar imagem.';
-        URL.revokeObjectURL(url);
-      };
-      img.src = url;
+      if (jaFez) {
+        document.getElementById('suc-time').textContent = 'Check-in já registrado anteriormente.';
+      } else {
+        document.getElementById('suc-time').textContent =
+          'Registrado às ' + new Date().toLocaleTimeString('pt-BR');
+      }
     }
 
-    // ── SCANNER CONTÍNUO (legado — removido, agora usa foto) ──
-    function toggleScanner() { }
-    function pararScanner()  { }
+    function irParaApp() {
+      // Limpa o token da URL sem recarregar
+      history.replaceState({}, '', location.pathname);
+      pendingCheckin = null;
+      mostrarApp();
+    }
+
+    function proximoCheckin() {
+      history.replaceState({}, '', location.pathname);
+      pendingCheckin = null;
+      mostrarApp();
+      // Tenta iniciar câmera automaticamente
+      if (!scannerOn) toggleScanner();
+    }
+
+    // ── SCANNER AO VIVO (BarcodeDetector) ────────────────────
+    function toggleScanner() {
+      if (scannerOn) {
+        pararScanner();
+      } else {
+        iniciarScanner();
+      }
+    }
 
     async function iniciarScanner() {
+      const status = document.getElementById('scan-status');
+      const btn    = document.getElementById('btn-scanner');
       const wrapper = document.getElementById('video-wrapper');
-      const btn     = document.getElementById('btn-scanner');
-      const status  = document.getElementById('scan-status');
+
+      if (!('BarcodeDetector' in window)) {
+        status.textContent = '⚠️ Câmera não disponível neste navegador. Use o botão "Ler foto do QR" ou a câmera nativa do celular.';
+        return;
+      }
 
       try {
-        const ZXing  = window.ZXing || window['@zxing/library'];
-        const hints  = new Map();
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: 'environment' } }
+        });
 
-        zxingReader = new ZXing.BrowserQRCodeReader();
-        const devices = await ZXing.BrowserCodeReader.listVideoInputDevices();
-
-        // Prefere câmera traseira
-        const device = devices.find(d => /back|rear|environment/i.test(d.label)) || devices[devices.length - 1];
-        const deviceId = device ? device.deviceId : undefined;
-
+        const video = document.getElementById('video');
+        video.srcObject = stream;
+        videoStream = stream;
         wrapper.style.display = 'block';
-        btn.textContent = 'Parar câmera';
+        btn.textContent = '⏹ Parar câmera';
         scannerOn = true;
         status.textContent = 'Aponte para o QR code do inscrito…';
 
-        await zxingReader.decodeFromVideoDevice(deviceId, 'video', (result, err) => {
-          if (result) processarQR(result.getText());
-        });
+        const detector = new BarcodeDetector({ formats: ['qr_code'] });
+
+        scanInterval = setInterval(async () => {
+          if (video.readyState < 2) return;
+          try {
+            const barcodes = await detector.detect(video);
+            if (barcodes.length > 0) processarQR(barcodes[0].rawValue);
+          } catch (_) {}
+        }, 400);
 
       } catch (err) {
-        wrapper.style.display = 'none';
-        status.textContent = 'Câmera não disponível. Use a busca manual ou o link do QR code.';
+        status.textContent = '⚠️ Não foi possível acessar a câmera. Verifique as permissões do navegador.';
         console.error(err);
-        scannerOn = false;
       }
     }
 
     function pararScanner() {
-      if (zxingReader) { try { zxingReader.reset(); } catch(e){} zxingReader = null; }
-      if (videoStream) videoStream.getTracks().forEach(t => t.stop());
+      if (scanInterval)  { clearInterval(scanInterval); scanInterval = null; }
+      if (videoStream)   { videoStream.getTracks().forEach(t => t.stop()); videoStream = null; }
+      const video = document.getElementById('video');
+      if (video) video.srcObject = null;
       document.getElementById('video-wrapper').style.display = 'none';
-      document.getElementById('btn-scanner').textContent = 'Iniciar câmera';
-      document.getElementById('scan-status').textContent =
-        'Clique em "Iniciar câmera" para escanear o QR code do inscrito.';
+      document.getElementById('btn-scanner').textContent     = '📷 Iniciar câmera';
       scannerOn = false;
     }
 
-    let ultimoScan = '';
-    let ultimoScanTs = 0;
+    // ── LER FOTO DO QR (BarcodeDetector) ─────────────────────
+    async function lerFotoQR(input) {
+      const file = input.files[0];
+      if (!file) return;
 
+      const status = document.getElementById('scan-status');
+      status.textContent = 'Processando imagem…';
+      input.value = '';
+
+      if (!('BarcodeDetector' in window)) {
+        // Fallback: canvas + atob manual não funciona sem lib; orienta o usuário
+        status.textContent = '⚠️ Leitura de foto não suportada neste navegador. Use a câmera nativa do celular.';
+        return;
+      }
+
+      try {
+        const bitmap   = await createImageBitmap(file);
+        const detector = new BarcodeDetector({ formats: ['qr_code'] });
+        const barcodes = await detector.detect(bitmap);
+
+        if (barcodes.length > 0) {
+          status.textContent = '✅ QR lido com sucesso!';
+          processarQR(barcodes[0].rawValue);
+        } else {
+          status.textContent = '⚠️ QR não encontrado na imagem. Tente mais perto ou use a câmera ao vivo.';
+        }
+      } catch (err) {
+        status.textContent = 'Erro ao processar imagem: ' + err.message;
+      }
+    }
+
+    // ── PROCESSAR DADO DO QR ──────────────────────────────────
+    // O QR contém: https://dayyan-morandi.github.io/mecevento/admin.html?t=TOKEN
     function processarQR(data) {
       const now = Date.now();
       if (data === ultimoScan && now - ultimoScanTs < 3000) return;
       ultimoScan   = data;
       ultimoScanTs = now;
 
+      let email = '', nome = '';
+
+      // 1) Tenta extrair ?t= de uma URL
       try {
-        const payload = JSON.parse(data);
-        const email   = payload.email || atob(payload.token || '');
-        const nome    = payload.nome  || '';
-        if (email) registrarPresenca(email, nome, 'qr');
-      } catch {
-        // fallback: trata como email direto
-        if (data.includes('@')) registrarPresenca(data, '', 'qr');
+        const url   = new URL(data);
+        const token = url.searchParams.get('t') || url.searchParams.get('token');
+        if (token) {
+          const decoded = atob(token);
+          const parts   = decoded.split('||');
+          email = (parts[0] || '').trim();
+          nome  = (parts[1] || '').trim();
+        }
+      } catch (_) {}
+
+      // 2) Tenta JSON (formato legado)
+      if (!email) {
+        try {
+          const payload = JSON.parse(data);
+          email = payload.email || '';
+          nome  = payload.nome  || '';
+        } catch (_) {}
+      }
+
+      // 3) Tenta e-mail direto
+      if (!email && data.includes('@')) {
+        email = data.trim();
+        nome  = '';
+      }
+
+      if (email) {
+        registrarPresenca(email, nome, 'qr', false);
+      } else {
+        showToast('QR inválido — sem e-mail identificado.', 'error');
       }
     }
 
@@ -677,7 +871,8 @@
       }
 
       const resultados = inscritos.filter(i =>
-        i.nome.toLowerCase().includes(q) || i.email.toLowerCase().includes(q)
+        (i.nome  || '').toLowerCase().includes(q) ||
+        (i.email || '').toLowerCase().includes(q)
       );
 
       if (!resultados.length) {
@@ -687,6 +882,7 @@
 
       list.innerHTML = resultados.map(i => {
         const presente = presencas.some(p => p.email === i.email);
+        const nomeSafe = (i.nome || '').replace(/'/g, "\\'");
         return `
           <div class="result-item">
             <div class="result-info">
@@ -697,8 +893,9 @@
               ${presente ? '✓ Presente' : 'Pendente'}
             </span>
             ${!presente
-              ? `<button class="btn btn-green" style="width:auto;padding:8px 14px;font-size:12px;"
-                   onclick="registrarPresenca('${i.email}','${(i.nome||'').replace(/'/g,"\\'")}','manual')">
+              ? `<button class="btn btn-green"
+                   style="width:auto;padding:8px 14px;font-size:12px;"
+                   onclick="registrarPresenca('${i.email}','${nomeSafe}','manual',false)">
                    Check-in
                  </button>`
               : ''}
@@ -707,33 +904,56 @@
     }
 
     // ── REGISTRAR PRESENÇA ────────────────────────────────────
-    function registrarPresenca(email, nome, origem) {
-      if (presencas.some(p => p.email === email)) {
-        showToast('⚠️ ' + (nome || email) + ' já fez check-in.', 'error');
-        return;
+    // Retorna true se já existia, false se foi novo
+    function registrarPresenca(email, nome, origem, silencioso) {
+      const jaFeito = presencas.some(p => p.email === email);
+
+      if (jaFeito) {
+        if (!silencioso) showToast('⚠️ ' + (nome || email) + ' já fez check-in.', 'error');
+        return true; // indica "já existia"
       }
 
-      const registro = { email, nome, horario: new Date().toLocaleTimeString('pt-BR'), origem };
+      const registro = {
+        email,
+        nome,
+        horario: new Date().toLocaleTimeString('pt-BR'),
+        origem
+      };
+
       presencas.push(registro);
       localStorage.setItem('mec_presencas', JSON.stringify(presencas));
 
-      // Sync com backend (Apps Script)
       if (GAS_URL) {
         fetch(GAS_URL, {
           method: 'POST',
           body: JSON.stringify({ action: 'checkin', email, nome }),
           headers: { 'Content-Type': 'application/json' }
-        }).catch(console.error);
+        }).catch(() => {});
       }
 
-      atualizarStats();
-      renderPresencas();
-      buscar(); // atualiza busca se aberta
+      if (!silencioso) {
+        atualizarStats();
+        renderPresencas();
+        buscar();
+        document.getElementById('scan-status').textContent = '✅ Check-in: ' + (nome || email);
+        showToast('✅ Check-in: ' + (nome || email), 'success');
+      } else {
+        // Atualiza silenciosamente para quando voltar ao app
+        atualizarStats();
+        renderPresencas();
+      }
 
-      document.getElementById('scan-status').textContent =
-        '✅ Check-in confirmado: ' + (nome || email);
+      return false; // indica "novo"
+    }
 
-      showToast('✅ Check-in: ' + (nome || email), 'success');
+    // ── STATS ─────────────────────────────────────────────────
+    function atualizarStats() {
+      const total   = inscritos.length;
+      const present = presencas.length;
+      const pct     = total > 0 ? Math.round((present / total) * 100) : 0;
+      document.getElementById('stat-total').textContent   = total;
+      document.getElementById('stat-present').textContent = present;
+      document.getElementById('stat-pct').textContent     = pct + '%';
     }
 
     // ── RENDER LISTA ──────────────────────────────────────────
@@ -755,11 +975,13 @@
     function exportCSV() {
       if (!presencas.length) { showToast('Nenhuma presença para exportar.', 'error'); return; }
       const header = 'Nome,E-mail,Horário\n';
-      const rows   = presencas.map(p => `"${p.nome}","${p.email}","${p.horario}"`).join('\n');
+      const rows   = presencas.map(p =>
+        `"${p.nome}","${p.email}","${p.horario}"`).join('\n');
       const blob   = new Blob([header + rows], { type: 'text/csv;charset=utf-8;' });
       const url    = URL.createObjectURL(blob);
       const a      = document.createElement('a');
-      a.href = url; a.download = 'presencas-mec-summit-2026.csv';
+      a.href = url;
+      a.download = 'presencas-mec-summit-2026.csv';
       a.click();
       URL.revokeObjectURL(url);
     }
@@ -778,13 +1000,9 @@
           return;
         }
 
-        // Detecta separador (vírgula ou ponto-e-vírgula)
-        const sep = lines[0].includes(';') ? ';' : ',';
-
-        // Lê cabeçalho
+        const sep     = lines[0].includes(';') ? ';' : ',';
         const headers = lines[0].split(sep).map(h =>
-          h.trim().toLowerCase().replace(/['"]/g, '')
-        );
+          h.trim().toLowerCase().replace(/['"]/g, ''));
 
         const iEmail = headers.findIndex(h => h.includes('email') || h.includes('e-mail'));
         const iNome  = headers.findIndex(h => h === 'nome' || h === 'name' || h.includes('nome'));
@@ -792,7 +1010,7 @@
 
         if (iEmail === -1) {
           document.getElementById('csv-status').textContent =
-            'Coluna de e-mail não encontrada. Verifique o arquivo.';
+            'Coluna de e-mail não encontrada.';
           return;
         }
 
@@ -801,9 +1019,7 @@
           const cols  = lines[i].split(sep).map(c => c.trim().replace(/^["']|["']$/g, ''));
           const email = (cols[iEmail] || '').toLowerCase().trim();
           if (!email) continue;
-
-          const jaExiste = inscritos.some(x => x.email === email);
-          if (!jaExiste) {
+          if (!inscritos.some(x => x.email === email)) {
             novos.push({
               email,
               nome:     iNome !== -1 ? cols[iNome] || '' : '',
@@ -818,37 +1034,12 @@
 
         const msg = novos.length > 0
           ? `✅ ${novos.length} inscrito(s) importado(s). Total: ${inscritos.length}.`
-          : `Nenhum novo inscrito. Total já cadastrado: ${inscritos.length}.`;
+          : `Nenhum novo inscrito. Total: ${inscritos.length}.`;
         document.getElementById('csv-status').textContent = msg;
         showToast(msg, 'success');
       };
 
       reader.readAsText(file, 'UTF-8');
-    }
-
-    // ── CONFIG ────────────────────────────────────────────────
-    function salvarConfig() {
-      GAS_URL = document.getElementById('input-gas-url').value.trim();
-      localStorage.setItem('gas_url', GAS_URL);
-
-      // Tenta sincronizar inscritos do backend
-      if (GAS_URL) sincronizarInscritos();
-
-      showToast('Configuração salva.', 'success');
-    }
-
-    function sincronizarInscritos() {
-      fetch(GAS_URL + '?action=list')
-        .then(r => r.json())
-        .then(data => {
-          if (Array.isArray(data)) {
-            inscritos = data;
-            localStorage.setItem('mec_inscritos', JSON.stringify(inscritos));
-            atualizarStats();
-            showToast('Inscritos sincronizados: ' + inscritos.length, 'success');
-          }
-        })
-        .catch(() => showToast('Erro ao conectar ao backend.', 'error'));
     }
 
     // ── TOAST ─────────────────────────────────────────────────
@@ -858,7 +1049,7 @@
       t.textContent = msg;
       t.className   = 'toast show ' + (type || '');
       clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => t.className = 'toast', 3000);
+      toastTimer = setTimeout(() => { t.className = 'toast'; }, 3000);
     }
   </script>
 
