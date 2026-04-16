@@ -478,6 +478,26 @@
     let videoStream = null;
     let scanInterval = null;
 
+    // ── CHECK-IN VIA URL (QR code abre admin.html?token=...) ──
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const token  = params.get('token');
+      if (!token) return;
+      try {
+        const data  = JSON.parse(decodeURIComponent(escape(atob(token))));
+        const email = (data.email || '').trim();
+        const nome  = (data.nome  || '').trim();
+        if (!email) return;
+
+        // Se não estiver logado, guarda o token e redireciona para login
+        if (document.getElementById('screen-app').style.display !== 'block') {
+          sessionStorage.setItem('pending_token', token);
+        } else {
+          registrarPresenca(email, nome, 'qr');
+        }
+      } catch(e) { console.error('Token inválido', e); }
+    })();
+
     // ── LOGIN ─────────────────────────────────────────────────
     function login() {
       const senha = document.getElementById('input-senha').value;
@@ -487,6 +507,15 @@
         document.getElementById('input-gas-url').value = GAS_URL;
         atualizarStats();
         renderPresencas();
+        // Processa check-in pendente (vindo de QR code)
+        const pending = sessionStorage.getItem('pending_token');
+        if (pending) {
+          sessionStorage.removeItem('pending_token');
+          try {
+            const data = JSON.parse(decodeURIComponent(escape(atob(pending))));
+            if (data.email) registrarPresenca(data.email.trim(), (data.nome||'').trim(), 'qr');
+          } catch(e) {}
+        }
       } else {
         document.getElementById('login-error').style.display = 'block';
       }

@@ -156,7 +156,9 @@ function mostrarQR(email, nome) {
   document.getElementById('tela-qr').style.display   = 'block';
   document.getElementById('nome-display').textContent = nome ? nome.split(' ')[0] : email;
 
-  var payload = JSON.stringify({ email: email, nome: nome });
+  // Payload como URL — leitores de QR abrem o browser, não o e-mail
+  var token   = btoa(unescape(encodeURIComponent(JSON.stringify({ email: email, nome: nome }))));
+  var payload = 'https://dayyan-morandi.github.io/mecevento/admin.html?token=' + token;
   var container = document.getElementById('qr-canvas');
   try {
     var canvas = QR.create(payload, 4);
