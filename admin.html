@@ -7,8 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
-  <!-- QR Code reader -->
-  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+  <!-- QR Code reader (ZXing — mais confiável que jsQR) -->
+  <script src="https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -539,51 +539,48 @@
       document.getElementById('stat-pct').textContent     = pct + '%';
     }
 
-    // ── SCANNER ───────────────────────────────────────────────
+    // ── SCANNER (ZXing) ───────────────────────────────────────
+    let zxingReader = null;
+
     function toggleScanner() {
       scannerOn ? pararScanner() : iniciarScanner();
     }
 
     async function iniciarScanner() {
+      const wrapper = document.getElementById('video-wrapper');
+      const btn     = document.getElementById('btn-scanner');
+      const status  = document.getElementById('scan-status');
+
       try {
-        const wrapper = document.getElementById('video-wrapper');
-        const video   = document.getElementById('video');
-        const btn     = document.getElementById('btn-scanner');
+        const ZXing  = window.ZXing || window['@zxing/library'];
+        const hints  = new Map();
 
-        videoStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment' }
-        });
+        zxingReader = new ZXing.BrowserQRCodeReader();
+        const devices = await ZXing.BrowserCodeReader.listVideoInputDevices();
 
-        video.srcObject = videoStream;
-        await video.play();
+        // Prefere câmera traseira
+        const device = devices.find(d => /back|rear|environment/i.test(d.label)) || devices[devices.length - 1];
+        const deviceId = device ? device.deviceId : undefined;
+
         wrapper.style.display = 'block';
         btn.textContent = 'Parar câmera';
         scannerOn = true;
+        status.textContent = 'Aponte para o QR code do inscrito…';
 
-        const canvas = document.getElementById('canvas');
-        const ctx    = canvas.getContext('2d');
-
-        scanInterval = setInterval(() => {
-          if (video.readyState !== video.HAVE_ENOUGH_DATA) return;
-          canvas.width  = video.videoWidth;
-          canvas.height = video.videoHeight;
-          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          const code = jsQR(imageData.data, imageData.width, imageData.height, {
-            inversionAttempts: 'dontInvert'
-          });
-          if (code) processarQR(code.data);
-        }, 300);
+        await zxingReader.decodeFromVideoDevice(deviceId, 'video', (result, err) => {
+          if (result) processarQR(result.getText());
+        });
 
       } catch (err) {
-        document.getElementById('scan-status').textContent =
-          'Câmera não disponível. Use a busca manual.';
+        wrapper.style.display = 'none';
+        status.textContent = 'Câmera não disponível. Use a busca manual ou o link do QR code.';
         console.error(err);
+        scannerOn = false;
       }
     }
 
     function pararScanner() {
-      clearInterval(scanInterval);
+      if (zxingReader) { try { zxingReader.reset(); } catch(e){} zxingReader = null; }
       if (videoStream) videoStream.getTracks().forEach(t => t.stop());
       document.getElementById('video-wrapper').style.display = 'none';
       document.getElementById('btn-scanner').textContent = 'Iniciar câmera';
