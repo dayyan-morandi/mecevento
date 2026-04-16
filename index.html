@@ -1399,6 +1399,72 @@
         }
       });
     });
+
+
+    // ── RD STATION: redirect para obrigado.html após inscrição ──
+    (function () {
+      const BASE = 'https://dayyan-morandi.github.io/mecevento/';
+
+      function getFormEmail() {
+        const inputs = document.querySelectorAll(
+          '#evento-marketing-esporte-clube-8ecddb510e9fe280419c input[type="email"], ' +
+          '#evento-marketing-esporte-clube-8ecddb510e9fe280419c input[name="email"]'
+        );
+        return inputs.length ? inputs[0].value : '';
+      }
+
+      function getFormNome() {
+        const inputs = document.querySelectorAll(
+          '#evento-marketing-esporte-clube-8ecddb510e9fe280419c input[name="name"], ' +
+          '#evento-marketing-esporte-clube-8ecddb510e9fe280419c input[name="nome"]'
+        );
+        return inputs.length ? inputs[0].value : '';
+      }
+
+      function redirectObrigado() {
+        const email = getFormEmail();
+        const nome  = getFormNome();
+        const url   = BASE + 'obrigado.html'
+          + (email ? '?email=' + encodeURIComponent(email) : '')
+          + (nome  ? (email ? '&' : '?') + 'nome=' + encodeURIComponent(nome) : '');
+        setTimeout(() => { window.location.href = url; }, 800);
+      }
+
+      // Detecta sucesso via MutationObserver (classe de sucesso do RD Station)
+      const rdForm = document.getElementById('evento-marketing-esporte-clube-8ecddb510e9fe280419c');
+      if (rdForm) {
+        const successObserver = new MutationObserver(function (mutations) {
+          for (const m of mutations) {
+            for (const node of m.addedNodes) {
+              if (node.nodeType !== 1) continue;
+              const isSuccess =
+                node.classList.contains('bricks-form--sent') ||
+                node.classList.contains('bricks--state-success') ||
+                node.querySelector && (
+                  node.querySelector('.bricks-form--sent') ||
+                  node.querySelector('.bricks--state-success')
+                );
+              if (isSuccess) redirectObrigado();
+            }
+          }
+        });
+        successObserver.observe(rdForm, { childList: true, subtree: true });
+      }
+
+      // Fallback: intercepta submit do formulário
+      document.addEventListener('submit', function (e) {
+        const form = e.target.closest('#evento-marketing-esporte-clube-8ecddb510e9fe280419c form');
+        if (form) {
+          const email = (form.querySelector('[type="email"]') || {}).value || '';
+          const nome  = (form.querySelector('[name="name"],[name="nome"]') || {}).value || '';
+          setTimeout(() => {
+            window.location.href = BASE + 'obrigado.html'
+              + '?email=' + encodeURIComponent(email)
+              + '&nome='  + encodeURIComponent(nome);
+          }, 1500);
+        }
+      }, true);
+    })();
   </script>
 
 </body>
