@@ -445,15 +445,21 @@
         </div>
       </div>
 
-      <!-- Config: URL do Apps Script -->
+      <!-- Importar CSV do RD Station -->
       <div class="panel">
         <div class="panel-header">
-          <span class="panel-title">⚙️ Configuração</span>
+          <span class="panel-title">📂 Importar inscritos (CSV do RD Station)</span>
         </div>
         <div class="panel-body">
-          <label style="font-size:12px;color:var(--gray);display:block;margin-bottom:6px;">URL do Google Apps Script (backend)</label>
-          <input type="text" class="input" id="input-gas-url" placeholder="https://script.google.com/macros/s/…/exec" />
-          <button class="btn btn-outline" style="margin-top:10px;" onclick="salvarConfig()">Salvar configuração</button>
+          <p style="font-size:13px;color:var(--gray);margin-bottom:14px;line-height:1.6;">
+            No dia do evento, exporte a lista de leads do RD Station como CSV e importe aqui.
+            Colunas esperadas: <strong style="color:var(--lgray)">email</strong>, <strong style="color:var(--lgray)">nome</strong> (ou name), telefone (opcional).
+          </p>
+          <label class="btn btn-outline" style="cursor:pointer;justify-content:center;">
+            📁 Selecionar arquivo CSV
+            <input type="file" accept=".csv" id="input-csv" style="display:none;" onchange="importarCSV(this)" />
+          </label>
+          <p id="csv-status" style="margin-top:10px;font-size:13px;color:var(--gray);"></p>
         </div>
       </div>
 
@@ -675,6 +681,68 @@
       a.href = url; a.download = 'presencas-mec-summit-2026.csv';
       a.click();
       URL.revokeObjectURL(url);
+    }
+
+    // ── IMPORTAR CSV ──────────────────────────────────────────
+    function importarCSV(input) {
+      const file = input.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const text  = e.target.result;
+        const lines = text.split(/\r?\n/).filter(l => l.trim());
+        if (lines.length < 2) {
+          document.getElementById('csv-status').textContent = 'Arquivo inválido ou vazio.';
+          return;
+        }
+
+        // Detecta separador (vírgula ou ponto-e-vírgula)
+        const sep = lines[0].includes(';') ? ';' : ',';
+
+        // Lê cabeçalho
+        const headers = lines[0].split(sep).map(h =>
+          h.trim().toLowerCase().replace(/['"]/g, '')
+        );
+
+        const iEmail = headers.findIndex(h => h.includes('email') || h.includes('e-mail'));
+        const iNome  = headers.findIndex(h => h === 'nome' || h === 'name' || h.includes('nome'));
+        const iTel   = headers.findIndex(h => h.includes('tel') || h.includes('fone') || h.includes('phone'));
+
+        if (iEmail === -1) {
+          document.getElementById('csv-status').textContent =
+            'Coluna de e-mail não encontrada. Verifique o arquivo.';
+          return;
+        }
+
+        const novos = [];
+        for (let i = 1; i < lines.length; i++) {
+          const cols  = lines[i].split(sep).map(c => c.trim().replace(/^["']|["']$/g, ''));
+          const email = (cols[iEmail] || '').toLowerCase().trim();
+          if (!email) continue;
+
+          const jaExiste = inscritos.some(x => x.email === email);
+          if (!jaExiste) {
+            novos.push({
+              email,
+              nome:     iNome !== -1 ? cols[iNome] || '' : '',
+              telefone: iTel  !== -1 ? cols[iTel]  || '' : '',
+            });
+          }
+        }
+
+        inscritos = [...inscritos, ...novos];
+        localStorage.setItem('mec_inscritos', JSON.stringify(inscritos));
+        atualizarStats();
+
+        const msg = novos.length > 0
+          ? `✅ ${novos.length} inscrito(s) importado(s). Total: ${inscritos.length}.`
+          : `Nenhum novo inscrito. Total já cadastrado: ${inscritos.length}.`;
+        document.getElementById('csv-status').textContent = msg;
+        showToast(msg, 'success');
+      };
+
+      reader.readAsText(file, 'UTF-8');
     }
 
     // ── CONFIG ────────────────────────────────────────────────
