@@ -7,13 +7,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
       --black:  #0C0C1E;
-      --dark:   #13132A;
       --card:   #1C1C3A;
       --gold:   #F5B800;
       --gold2:  #D4A200;
@@ -21,7 +21,6 @@
       --gray:   #8888AA;
       --lgray:  #CCCCDD;
       --border: rgba(245,184,0,.15);
-      --radius: 12px;
       --trans:  .25s ease;
     }
 
@@ -34,7 +33,6 @@
       color: var(--white);
       min-height: 100vh;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       padding: 40px 24px;
@@ -52,9 +50,7 @@
       box-shadow: 0 32px 80px rgba(0,0,0,.4);
     }
 
-    @media (max-width: 480px) {
-      .card { padding: 32px 20px; }
-    }
+    @media (max-width: 480px) { .card { padding: 32px 20px; } }
 
     .brand {
       font-size: 11px;
@@ -75,6 +71,7 @@
       letter-spacing: -.01em;
     }
 
+    /* QR wrapper — sempre visível para que o canvas carregue */
     .qr-wrapper {
       background: #fff;
       border-radius: 16px;
@@ -82,35 +79,25 @@
       display: inline-block;
       margin-bottom: 24px;
       box-shadow: 0 8px 32px rgba(0,0,0,.3);
-      line-height: 0;
+      min-width: 240px;
+      min-height: 240px;
+      position: relative;
     }
 
-    .qr-wrapper img {
-      display: block;
-      width: 200px;
-      height: 200px;
-    }
+    #qr-container { line-height: 0; }
+    #qr-container canvas,
+    #qr-container img { display: block !important; }
 
-    .qr-loading {
-      width: 200px;
-      height: 200px;
+    .qr-spinner {
+      position: absolute;
+      inset: 0;
       display: flex;
       align-items: center;
       justify-content: center;
+      font-size: 13px;
       color: #999;
-      font-size: 13px;
       font-family: Inter, sans-serif;
-      line-height: 1.4;
     }
-
-    .event-info {
-      font-size: 13px;
-      color: var(--gray);
-      line-height: 1.7;
-      margin-bottom: 28px;
-    }
-
-    .event-info strong { color: var(--lgray); }
 
     .instruction {
       background: rgba(245,184,0,.08);
@@ -124,6 +111,15 @@
     }
 
     .instruction strong { color: var(--gold); }
+
+    .event-info {
+      font-size: 13px;
+      color: var(--gray);
+      line-height: 1.7;
+      margin-bottom: 28px;
+    }
+
+    .event-info strong { color: var(--lgray); }
 
     .btn {
       display: inline-flex;
@@ -149,178 +145,136 @@
 
     .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
 
-    .error-state { padding: 40px 20px; }
-    .error-state .ico { font-size: 48px; margin-bottom: 16px; }
-    .error-state p { color: var(--lgray); font-size: 15px; line-height: 1.6; margin-bottom: 20px; }
+    /* Formulário de acesso direto */
+    .form-section { text-align: left; }
+    .form-section p { font-size: 14px; color: var(--gray); margin-bottom: 16px; line-height: 1.6; }
 
-    /* Input de e-mail para acesso direto */
-    .direct-access {
-      margin-top: 32px;
-      border-top: 1px solid rgba(255,255,255,.07);
-      padding-top: 24px;
-    }
+    .row { display: flex; gap: 8px; }
 
-    .direct-access p {
-      font-size: 12px;
-      color: var(--gray);
-      margin-bottom: 10px;
-    }
-
-    .direct-access .row {
-      display: flex;
-      gap: 8px;
-    }
-
-    .direct-access input {
+    .input {
       flex: 1;
       background: rgba(255,255,255,.06);
       border: 1px solid rgba(255,255,255,.12);
       border-radius: 8px;
-      padding: 10px 14px;
+      padding: 12px 14px;
       font-size: 14px;
       color: #fff;
       font-family: Inter, sans-serif;
       outline: none;
     }
 
-    .direct-access input:focus { border-color: var(--gold); }
-    .direct-access input::placeholder { color: rgba(255,255,255,.25); }
+    .input:focus { border-color: var(--gold); }
+    .input::placeholder { color: rgba(255,255,255,.25); }
 
-    .btn-gold { background: var(--gold); color: var(--black); }
+    .btn-gold { background: var(--gold); color: var(--black); white-space: nowrap; }
     .btn-gold:hover { background: var(--gold2); }
+
+    .err { color: #ef4444; font-size: 12px; margin-top: 8px; display: none; }
   </style>
 </head>
 <body>
+<div class="card">
+  <p class="brand">MEC Summit 2026 · Check-in</p>
 
-  <div class="card">
-    <p class="brand">MEC Summit 2026 · Check-in</p>
+  <!-- Seção do QR (oculta até ter email) -->
+  <div id="section-qr" style="display:none;">
+    <h1>Olá,</h1>
+    <p class="attendee-name" id="display-name">—</p>
 
-    <!-- Estado: QR gerado com sucesso -->
-    <div id="state-ok" style="display:none;">
-      <h1>Olá,</h1>
-      <p class="attendee-name" id="display-name">—</p>
-
-      <div class="qr-wrapper">
-        <img id="qr-img" src="" alt="QR Code de acesso" />
-      </div>
-
-      <div class="instruction">
-        <strong>Como usar:</strong> Apresente este QR code na entrada do evento.
-        A equipe fará a leitura e confirmará sua presença.
-      </div>
-
-      <div class="event-info">
-        <strong>📅 25 de Maio de 2026</strong> · Segunda-feira · 19h00<br />
-        <strong>📍 ESPM São Paulo</strong> — R. Dr. Álvaro Alvim, 123<br />
-        Abertura das portas às <strong>18h30</strong>
-      </div>
-
-      <a href="index.html" class="btn btn-outline">← Voltar ao site</a>
+    <div class="qr-wrapper">
+      <div id="qr-container"></div>
+      <div class="qr-spinner" id="qr-spinner">Gerando QR…</div>
     </div>
 
-    <!-- Estado: sem email na URL -->
-    <div id="state-form" style="display:none;">
-      <div style="font-size:40px;margin-bottom:16px;">🎟️</div>
-      <h1 style="margin-bottom:8px;">Seu QR code</h1>
-      <p style="font-size:14px;color:var(--gray);margin-bottom:24px;line-height:1.6;">
-        Digite o e-mail usado na inscrição para gerar seu QR code de acesso.
-      </p>
-      <div class="direct-access" style="border:none;padding:0;margin:0;">
-        <div class="row">
-          <input type="email" id="input-email" placeholder="seu@email.com" />
-          <button class="btn btn-gold" onclick="gerarPorEmail()">Gerar</button>
-        </div>
-        <p id="form-error" style="color:#ef4444;font-size:12px;margin-top:8px;display:none;">
-          Digite um e-mail válido.
-        </p>
-      </div>
-      <p style="margin-top:20px;font-size:12px;color:var(--gray);">
-        Não se inscreveu ainda?
-        <a href="index.html#inscricao" style="color:var(--gold);">Inscreva-se grátis →</a>
-      </p>
+    <div class="instruction">
+      <strong>Como usar:</strong> Apresente este QR code na entrada do evento.
     </div>
 
-    <!-- Estado: carregando -->
-    <div id="state-loading">
-      <div class="qr-wrapper" style="margin:0 auto 16px;">
-        <div class="qr-loading">Gerando QR code…</div>
-      </div>
-      <p style="color:var(--gray);font-size:13px;">Aguarde um instante…</p>
+    <div class="event-info">
+      <strong>📅 25 de Maio de 2026</strong> · 19h00<br />
+      <strong>📍 ESPM São Paulo</strong> — Portas abrem às 18h30
     </div>
+
+    <a href="index.html" class="btn btn-outline">← Voltar ao site</a>
   </div>
 
-  <script>
-    (function () {
-      const params = new URLSearchParams(window.location.search);
-      const email  = (params.get('email') || '').trim();
-      const nome   = (params.get('nome')  || params.get('name') || '').trim();
+  <!-- Formulário de acesso direto (mostrado quando não há email na URL) -->
+  <div id="section-form" style="display:none;" class="form-section">
+    <div style="font-size:40px;margin-bottom:16px;text-align:center;">🎟️</div>
+    <h1 style="text-align:center;margin-bottom:16px;">Seu QR code</h1>
+    <p>Digite o e-mail usado na inscrição para acessar seu QR code de entrada:</p>
+    <div class="row">
+      <input type="email" id="input-email" class="input" placeholder="seu@email.com" />
+      <button class="btn btn-gold" onclick="gerarPorEmail()">Gerar QR</button>
+    </div>
+    <p class="err" id="err-msg">Digite um e-mail válido.</p>
+    <p style="margin-top:20px;font-size:12px;color:var(--gray);text-align:center;">
+      Não se inscreveu?
+      <a href="index.html#inscricao" style="color:var(--gold);">Inscreva-se grátis →</a>
+    </p>
+  </div>
+</div>
 
-      if (email) {
-        renderQR(email, nome);
-      } else {
-        document.getElementById('state-loading').style.display = 'none';
-        document.getElementById('state-form').style.display    = 'block';
-      }
+<script>
+  function gerarQR(email, nome) {
+    // Mostra seção do QR
+    document.getElementById('section-form').style.display = 'none';
+    document.getElementById('section-qr').style.display  = 'block';
 
-      // Enter no input
-      document.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter' && document.activeElement.id === 'input-email') {
-          gerarPorEmail();
-        }
+    // Nome de exibição
+    document.getElementById('display-name').textContent =
+      nome ? nome.split(' ')[0] : email;
+
+    // Payload que o admin.html vai ler ao escanear
+    const payload = JSON.stringify({ email: email, nome: nome });
+
+    try {
+      new QRCode(document.getElementById('qr-container'), {
+        text:          payload,
+        width:         200,
+        height:        200,
+        colorDark:     '#0C0C1E',
+        colorLight:    '#FFFFFF',
+        correctLevel:  QRCode.CorrectLevel.M
       });
-    })();
-
-    function gerarPorEmail() {
-      const email = document.getElementById('input-email').value.trim();
-      const errEl = document.getElementById('form-error');
-      if (!email || !email.includes('@')) {
-        errEl.style.display = 'block';
-        return;
-      }
-      errEl.style.display = 'none';
-      document.getElementById('state-form').style.display    = 'none';
-      document.getElementById('state-loading').style.display = 'block';
-      renderQR(email, '');
+      document.getElementById('qr-spinner').style.display = 'none';
+    } catch (e) {
+      document.getElementById('qr-spinner').textContent =
+        'Erro ao gerar QR code. Tente recarregar a página.';
+      console.error(e);
     }
+  }
 
-    function renderQR(email, nome) {
-      // Payload lido pelo admin.html ao escanear
-      const payload = JSON.stringify({ email: email, nome: nome });
-
-      // Gera QR via API pública — sem dependência de biblioteca JS
-      const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/'
-        + '?size=200x200'
-        + '&margin=0'
-        + '&color=0C0C1E'
-        + '&bgcolor=FFFFFF'
-        + '&data=' + encodeURIComponent(payload);
-
-      const img = document.getElementById('qr-img');
-      img.src = qrUrl;
-
-      img.onload = function () {
-        document.getElementById('state-loading').style.display = 'none';
-        document.getElementById('display-name').textContent =
-          nome ? nome.split(' ')[0] : email;
-        document.getElementById('state-ok').style.display = 'block';
-      };
-
-      img.onerror = function () {
-        // Fallback: tenta gerar QR só com o email se o payload completo falhar
-        const fallbackUrl = 'https://api.qrserver.com/v1/create-qr-code/'
-          + '?size=200x200&margin=0&data=' + encodeURIComponent(email);
-        if (img.src !== fallbackUrl) {
-          img.src = fallbackUrl;
-        } else {
-          document.getElementById('state-loading').style.display = 'none';
-          document.getElementById('state-form').style.display    = 'block';
-          document.getElementById('form-error').textContent =
-            'Erro ao gerar QR code. Verifique sua conexão.';
-          document.getElementById('form-error').style.display = 'block';
-        }
-      };
+  function gerarPorEmail() {
+    const email  = document.getElementById('input-email').value.trim();
+    const errMsg = document.getElementById('err-msg');
+    if (!email || !email.includes('@')) {
+      errMsg.style.display = 'block';
+      return;
     }
-  </script>
+    errMsg.style.display = 'none';
+    gerarQR(email, '');
+  }
 
+  // Enter no campo de email
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && document.activeElement.id === 'input-email') {
+      gerarPorEmail();
+    }
+  });
+
+  // Inicialização: lê params da URL
+  (function () {
+    const params = new URLSearchParams(window.location.search);
+    const email  = (params.get('email') || '').trim();
+    const nome   = (params.get('nome')  || params.get('name') || '').trim();
+
+    if (email) {
+      gerarQR(email, nome);
+    } else {
+      document.getElementById('section-form').style.display = 'block';
+    }
+  })();
+</script>
 </body>
 </html>
