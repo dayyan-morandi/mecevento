@@ -478,23 +478,21 @@
     let videoStream = null;
     let scanInterval = null;
 
-    // ── CHECK-IN VIA URL (QR code abre admin.html?token=...) ──
+    // ── CHECK-IN VIA URL (QR code abre admin.html?t=...) ──
     (function () {
       const params = new URLSearchParams(window.location.search);
-      const token  = params.get('token');
+      const token  = params.get('t') || params.get('token');
       if (!token) return;
       try {
-        const data  = JSON.parse(decodeURIComponent(escape(atob(token))));
-        const email = (data.email || '').trim();
-        const nome  = (data.nome  || '').trim();
+        // Formato: btoa("email||nome")
+        const decoded = atob(token);
+        const parts   = decoded.split('||');
+        const email   = (parts[0] || '').trim();
+        const nome    = (parts[1] || '').trim();
         if (!email) return;
 
-        // Se não estiver logado, guarda o token e redireciona para login
-        if (document.getElementById('screen-app').style.display !== 'block') {
-          sessionStorage.setItem('pending_token', token);
-        } else {
-          registrarPresenca(email, nome, 'qr');
-        }
+        // Guarda para processar após login
+        sessionStorage.setItem('pending_checkin', JSON.stringify({ email, nome }));
       } catch(e) { console.error('Token inválido', e); }
     })();
 
@@ -508,12 +506,12 @@
         atualizarStats();
         renderPresencas();
         // Processa check-in pendente (vindo de QR code)
-        const pending = sessionStorage.getItem('pending_token');
+        const pending = sessionStorage.getItem('pending_checkin');
         if (pending) {
-          sessionStorage.removeItem('pending_token');
+          sessionStorage.removeItem('pending_checkin');
           try {
-            const data = JSON.parse(decodeURIComponent(escape(atob(pending))));
-            if (data.email) registrarPresenca(data.email.trim(), (data.nome||'').trim(), 'qr');
+            const data = JSON.parse(pending);
+            if (data.email) registrarPresenca(data.email, data.nome || '', 'qr');
           } catch(e) {}
         }
       } else {
