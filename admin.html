@@ -7,8 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
-  <!-- QR Code reader (ZXing — mais confiável que jsQR) -->
-  <script src="https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js"></script>
+  <!-- jsQR para decodificar foto do QR -->
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js" onerror="console.warn('jsQR CDN falhou')"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -358,9 +358,18 @@
   <!-- ── LOGIN ── -->
   <div id="screen-login">
     <div class="login-card">
-      <p style="font-size:32px;margin-bottom:16px;">🎟️</p>
-      <h1>Admin Check-in</h1>
-      <p>MEC Summit 2026 · Acesso restrito à equipe</p>
+      <!-- Bloco de confirmação de QR (mostrado quando vem de ?t=TOKEN) -->
+      <div id="qr-confirm-block" style="display:none;
+           background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);
+           border-radius:10px;padding:16px;margin-bottom:20px;text-align:left;">
+        <p style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#22c55e;margin-bottom:6px;">QR CODE LIDO ✓</p>
+        <p style="font-size:18px;font-weight:800;color:#fff;margin-bottom:2px;" id="qr-confirm-nome">—</p>
+        <p style="font-size:13px;color:#8888AA;" id="qr-confirm-email">—</p>
+        <p style="font-size:12px;color:#22c55e;margin-top:8px;">Digite a senha abaixo para confirmar o check-in.</p>
+      </div>
+      <p style="font-size:32px;margin-bottom:16px;" id="login-icon">🎟️</p>
+      <h1 id="login-title">Admin Check-in</h1>
+      <p id="login-subtitle">MEC Summit 2026 · Acesso restrito à equipe</p>
       <input type="password" class="input" id="input-senha" placeholder="Senha de acesso" />
       <button class="btn btn-gold" onclick="login()">Entrar</button>
       <p id="login-error">Senha incorreta.</p>
@@ -395,16 +404,20 @@
       <!-- Scanner QR -->
       <div class="panel">
         <div class="panel-header">
-          <span class="panel-title">📷 Scanner QR Code</span>
-          <button class="btn btn-gold" id="btn-scanner" style="width:auto;padding:8px 16px;font-size:12px;" onclick="toggleScanner()">Iniciar câmera</button>
+          <span class="panel-title">📷 Escanear QR Code</span>
         </div>
         <div class="panel-body">
-          <div id="video-wrapper">
-            <video id="video" playsinline muted></video>
-            <canvas id="canvas" style="display:none;"></canvas>
-            <div class="scan-overlay"><div class="scan-box"></div></div>
-          </div>
-          <p id="scan-status">Clique em "Iniciar câmera" para escanear o QR code do inscrito.</p>
+          <p style="font-size:13px;color:var(--gray);margin-bottom:14px;line-height:1.6;">
+            Use a <strong style="color:var(--lgray)">câmera nativa</strong> do celular para ler o QR do inscrito —
+            o link abrirá esta página com o check-in pronto para confirmar.<br/>
+            Ou tire uma foto do QR abaixo:
+          </p>
+          <label class="btn btn-gold" style="cursor:pointer;width:100%;justify-content:center;">
+            📷 Fotografar QR Code
+            <input type="file" accept="image/*" capture="environment" id="input-qr-foto"
+                   style="display:none;" onchange="lerFotoQR(this)" />
+          </label>
+          <p id="scan-status" style="margin-top:10px;font-size:13px;color:var(--gray);"></p>
         </div>
       </div>
 
@@ -484,15 +497,23 @@
       const token  = params.get('t') || params.get('token');
       if (!token) return;
       try {
-        // Formato: btoa("email||nome")
         const decoded = atob(token);
         const parts   = decoded.split('||');
         const email   = (parts[0] || '').trim();
         const nome    = (parts[1] || '').trim();
         if (!email) return;
 
-        // Guarda para processar após login
         sessionStorage.setItem('pending_checkin', JSON.stringify({ email, nome }));
+
+        // Mostra bloco de confirmação na tela de login
+        document.getElementById('qr-confirm-block').style.display = 'block';
+        document.getElementById('qr-confirm-nome').textContent  = nome || email;
+        document.getElementById('qr-confirm-email').textContent = email;
+        document.getElementById('login-icon').style.display     = 'none';
+        document.getElementById('login-title').textContent      = 'Confirmar Check-in';
+        document.getElementById('login-subtitle').textContent   = 'Digite a senha para registrar a presença.';
+        // Foca direto na senha
+        setTimeout(() => { const s = document.getElementById('input-senha'); if(s) s.focus(); }, 100);
       } catch(e) { console.error('Token inválido', e); }
     })();
 
@@ -539,12 +560,48 @@
       document.getElementById('stat-pct').textContent     = pct + '%';
     }
 
-    // ── SCANNER (ZXing) ───────────────────────────────────────
-    let zxingReader = null;
+    // ── LER FOTO QR (via input[capture]) ─────────────────────
+    function lerFotoQR(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const status = document.getElementById('scan-status');
+      status.textContent = 'Processando imagem…';
 
-    function toggleScanner() {
-      scannerOn ? pararScanner() : iniciarScanner();
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = function () {
+        const canvas = document.createElement('canvas');
+        canvas.width  = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
+
+        // Decodifica usando jsQR (carregado inline abaixo)
+        const code = typeof jsQR !== 'undefined'
+          ? jsQR(imageData.data, imageData.width, imageData.height)
+          : null;
+
+        if (code) {
+          status.textContent = '✅ QR lido com sucesso!';
+          processarQR(code.data);
+        } else {
+          status.textContent = '⚠️ Não foi possível ler o QR. Tente mais perto ou use busca manual.';
+        }
+        // limpa input para permitir nova foto
+        input.value = '';
+      };
+      img.onerror = function () {
+        status.textContent = 'Erro ao carregar imagem.';
+        URL.revokeObjectURL(url);
+      };
+      img.src = url;
     }
+
+    // ── SCANNER CONTÍNUO (legado — removido, agora usa foto) ──
+    function toggleScanner() { }
+    function pararScanner()  { }
 
     async function iniciarScanner() {
       const wrapper = document.getElementById('video-wrapper');
