@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meu QR Code — MEC Summit 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <!-- QR Code generator -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:  #0C0C1E;
+      --dark:   #13132A;
+      --card:   #1C1C3A;
+      --gold:   #F5B800;
+      --gold2:  #D4A200;
+      --white:  #FFFFFF;
+      --gray:   #8888AA;
+      --lgray:  #CCCCDD;
+      --border: rgba(245,184,0,.15);
+      --radius: 12px;
+      --trans:  .25s ease;
+    }
+
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background:
+        radial-gradient(ellipse 70% 50% at 50% 0%, rgba(245,184,0,.06) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 50% at 20% 100%, rgba(46,46,142,.15) 0%, transparent 60%),
+        #0C0C1E;
+      color: var(--white);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 48px 40px;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 32px 80px rgba(0,0,0,.4);
+    }
+
+    @media (max-width: 480px) {
+      .card { padding: 32px 20px; }
+    }
+
+    .brand {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .attendee-name {
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--gold);
+      margin-bottom: 28px;
+      letter-spacing: -.01em;
+    }
+
+    .qr-wrapper {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      display: inline-block;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.3);
+    }
+
+    #qr-canvas {
+      display: block;
+    }
+
+    .qr-placeholder {
+      width: 200px;
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ccc;
+      font-size: 13px;
+    }
+
+    .event-info {
+      font-size: 13px;
+      color: var(--gray);
+      line-height: 1.7;
+      margin-bottom: 28px;
+    }
+
+    .event-info strong { color: var(--lgray); }
+
+    .instruction {
+      background: rgba(245,184,0,.08);
+      border: 1px solid rgba(245,184,0,.2);
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-size: 13px;
+      color: var(--lgray);
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+
+    .instruction strong { color: var(--gold); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all var(--trans);
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--lgray);
+      border: 1px solid rgba(255,255,255,.15);
+    }
+
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+    .error-state {
+      padding: 40px 20px;
+    }
+
+    .error-state .ico { font-size: 48px; margin-bottom: 16px; }
+    .error-state p { color: var(--lgray); font-size: 15px; line-height: 1.6; margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+
+  <div class="card" id="card-main">
+    <p class="brand">MEC Summit 2026 · Check-in</p>
+
+    <div id="state-loading">
+      <p style="color:var(--gray);font-size:14px;">Carregando seu QR code...</p>
+    </div>
+
+    <div id="state-ok" style="display:none;">
+      <h1>Olá,</h1>
+      <p class="attendee-name" id="display-name">—</p>
+
+      <div class="qr-wrapper">
+        <canvas id="qr-canvas"></canvas>
+      </div>
+
+      <div class="instruction">
+        <strong>Como usar:</strong> Apresente este QR code na entrada do evento.
+        A equipe fará a leitura e confirmará sua presença.
+      </div>
+
+      <div class="event-info">
+        <strong>📅 25 de Maio de 2026</strong> · Segunda-feira · 19h00<br />
+        <strong>📍 ESPM São Paulo</strong> — R. Dr. Álvaro Alvim, 123<br />
+        Abertura das portas às <strong>18h30</strong>
+      </div>
+
+      <a href="index.html" class="btn btn-outline">← Voltar ao site</a>
+    </div>
+
+    <div id="state-error" style="display:none;" class="error-state">
+      <div class="ico">⚠️</div>
+      <p>
+        Link inválido ou incompleto.<br />
+        Use o link recebido no seu e-mail de confirmação.
+      </p>
+      <a href="index.html#inscricao" class="btn btn-outline">Fazer inscrição</a>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const email  = params.get('email') || '';
+      const nome   = params.get('nome')  || params.get('name') || '';
+
+      const stateLoading = document.getElementById('state-loading');
+      const stateOk      = document.getElementById('state-ok');
+      const stateError   = document.getElementById('state-error');
+
+      if (!email) {
+        stateLoading.style.display = 'none';
+        stateError.style.display   = 'block';
+        return;
+      }
+
+      // Token: base64 do email (lido pelo admin.html na câmera)
+      const token = btoa(email);
+
+      // Payload do QR code: JSON com token + email + nome
+      const payload = JSON.stringify({ token, email, nome });
+
+      // Nome a exibir
+      document.getElementById('display-name').textContent =
+        nome ? nome.split(' ')[0] : email;
+
+      // Gera QR code
+      QRCode.toCanvas(
+        document.getElementById('qr-canvas'),
+        payload,
+        {
+          width: 200,
+          margin: 0,
+          color: { dark: '#0C0C1E', light: '#FFFFFF' }
+        },
+        function (err) {
+          stateLoading.style.display = 'none';
+          if (err) {
+            stateError.style.display = 'block';
+            console.error(err);
+          } else {
+            stateOk.style.display = 'block';
+          }
+        }
+      );
+    })();
+  </script>
+
+</body>
+</html>

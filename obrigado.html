@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inscrição Confirmada — MEC Summit 2026</title>
+  <meta name="description" content="Sua inscrição no MEC Summit 2026 foi confirmada! 25 de Maio · ESPM São Paulo · 19h00." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:  #0C0C1E;
+      --dark:   #13132A;
+      --card:   #1C1C3A;
+      --gold:   #F5B800;
+      --gold2:  #D4A200;
+      --white:  #FFFFFF;
+      --gray:   #8888AA;
+      --lgray:  #CCCCDD;
+      --border: rgba(245,184,0,.15);
+      --radius: 12px;
+      --trans:  .25s ease;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--black);
+      color: var(--white);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      -webkit-font-smoothing: antialiased;
+      background:
+        radial-gradient(ellipse 70% 50% at 50% 0%, rgba(245,184,0,.06) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 50% at 20% 100%, rgba(46,46,142,.15) 0%, transparent 60%),
+        #0C0C1E;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 56px 48px;
+      max-width: 560px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 32px 80px rgba(0,0,0,.4);
+    }
+
+    @media (max-width: 480px) {
+      .card { padding: 36px 24px; }
+    }
+
+    .check-circle {
+      width: 80px;
+      height: 80px;
+      background: rgba(245,184,0,.12);
+      border: 2px solid rgba(245,184,0,.4);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 28px;
+      font-size: 36px;
+      animation: pop .5s cubic-bezier(.17,.67,.35,1.3) forwards;
+    }
+
+    @keyframes pop {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    .label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: clamp(26px, 5vw, 34px);
+      font-weight: 900;
+      letter-spacing: -.02em;
+      margin-bottom: 12px;
+      line-height: 1.1;
+    }
+
+    .sub {
+      font-size: 16px;
+      color: var(--lgray);
+      line-height: 1.6;
+      margin-bottom: 36px;
+    }
+
+    .event-details {
+      background: rgba(245,184,0,.06);
+      border: 1px solid rgba(245,184,0,.15);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 32px;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .detail-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      color: var(--lgray);
+    }
+
+    .detail-row .ico { font-size: 18px; min-width: 24px; text-align: center; }
+    .detail-row strong { color: var(--white); }
+
+    .divider {
+      width: 40px;
+      height: 2px;
+      background: var(--gold);
+      border-radius: 100px;
+      margin: 0 auto 32px;
+    }
+
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: .03em;
+      text-decoration: none;
+      transition: all var(--trans);
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-gold {
+      background: var(--gold);
+      color: var(--black);
+    }
+
+    .btn-gold:hover {
+      background: var(--gold2);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 24px rgba(245,184,0,.3);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--lgray);
+      border: 1px solid rgba(255,255,255,.15);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    .btn-whatsapp {
+      background: #25D366;
+      color: #fff;
+    }
+
+    .btn-whatsapp:hover {
+      background: #1ebe59;
+      transform: translateY(-1px);
+    }
+
+    .note {
+      margin-top: 28px;
+      font-size: 12px;
+      color: var(--gray);
+      line-height: 1.6;
+    }
+
+    .note a { color: var(--gold); text-decoration: none; }
+    .note a:hover { text-decoration: underline; }
+
+    footer-brand {
+      display: block;
+      margin-top: 40px;
+      font-size: 12px;
+      color: rgba(255,255,255,.2);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="check-circle">✓</div>
+
+    <p class="label">Inscrição confirmada</p>
+    <h1>Você está dentro<br />do MEC Summit!</h1>
+    <p class="sub">
+      Em breve você receberá um e-mail de confirmação com o seu
+      <strong style="color:var(--white)">QR code de acesso</strong> ao evento.
+    </p>
+
+    <div class="divider"></div>
+
+    <div class="event-details">
+      <div class="detail-row">
+        <span class="ico">📅</span>
+        <span><strong>25 de Maio de 2026</strong> — Segunda-feira</span>
+      </div>
+      <div class="detail-row">
+        <span class="ico">🕖</span>
+        <span><strong>19h00</strong> — Abertura das portas às 18h30</span>
+      </div>
+      <div class="detail-row">
+        <span class="ico">📍</span>
+        <span><strong>ESPM São Paulo</strong> — R. Dr. Álvaro Alvim, 123</span>
+      </div>
+      <div class="detail-row">
+        <span class="ico">🎟️</span>
+        <span><strong>Entrada gratuita</strong> — Apresente seu QR code</span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <a
+        id="btn-calendar"
+        class="btn btn-gold"
+        target="_blank"
+        rel="noopener"
+        href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=MEC+Summit+2026&dates=20260525T190000/20260525T220000&location=ESPM+São+Paulo,+R.+Dr.+Álvaro+Alvim,+123&details=O+maior+painel+sobre+marketing+esportivo+e+Copa+do+Mundo+no+Brasil.+Acesse+sua+inscrição+em+https://dayyan-morandi.github.io/mecevento/"
+      >
+        📅 Adicionar ao Google Calendar
+      </a>
+
+      <a
+        id="btn-qr"
+        class="btn btn-outline"
+        href="checkin.html"
+      >
+        🎟️ Ver meu QR code de acesso
+      </a>
+
+      <a
+        id="btn-whatsapp"
+        class="btn btn-whatsapp"
+        target="_blank"
+        rel="noopener"
+        href="https://wa.me/?text=Acabei+de+confirmar+minha+presença+no+MEC+Summit+2026!+O+maior+painel+sobre+marketing+esportivo+e+Copa+do+Mundo+no+Brasil.+25+de+Maio+%7C+ESPM+São+Paulo.+Garante+a+sua+vaga+também:+https://dayyan-morandi.github.io/mecevento/"
+      >
+        💬 Compartilhar no WhatsApp
+      </a>
+    </div>
+
+    <p class="note">
+      Não recebeu o e-mail? Verifique sua caixa de spam ou
+      <a href="index.html#inscricao">tente novamente</a>.<br />
+      Dúvidas? Fale conosco em <a href="mailto:contato@marketingesporteclube.com.br">contato@marketingesporteclube.com.br</a>
+    </p>
+
+    <footer-brand>Marketing Esporte Clube</footer-brand>
+  </div>
+
+  <script>
+    // Preenche o link do QR code com os dados da URL (vindos do redirect do RD Station)
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const name  = params.get('nome')  || params.get('name')  || '';
+      const email = params.get('email') || '';
+
+      if (email) {
+        const qrBtn = document.getElementById('btn-qr');
+        qrBtn.href = 'checkin.html?email=' + encodeURIComponent(email)
+                   + (name ? '&nome=' + encodeURIComponent(name) : '');
+      }
+    })();
+  </script>
+
+</body>
+</html>

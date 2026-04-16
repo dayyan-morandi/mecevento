@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Check-in — MEC Summit 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <!-- QR Code reader -->
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:  #0C0C1E;
+      --dark:   #13132A;
+      --card:   #1C1C3A;
+      --gold:   #F5B800;
+      --gold2:  #D4A200;
+      --white:  #FFFFFF;
+      --gray:   #8888AA;
+      --lgray:  #CCCCDD;
+      --green:  #22c55e;
+      --red:    #ef4444;
+      --border: rgba(245,184,0,.15);
+      --radius: 10px;
+      --trans:  .2s ease;
+    }
+
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--black);
+      color: var(--white);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── LOGIN ──────────────────────────────────────────── */
+    #screen-login {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background:
+        radial-gradient(ellipse 70% 50% at 50% 0%, rgba(245,184,0,.05) 0%, transparent 70%),
+        var(--black);
+    }
+
+    .login-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 48px 40px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .login-card h1 { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+    .login-card p  { font-size: 14px; color: var(--gray); margin-bottom: 28px; }
+
+    .input {
+      width: 100%;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 15px;
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      margin-bottom: 12px;
+      transition: border-color var(--trans);
+    }
+
+    .input:focus { border-color: var(--gold); }
+    .input::placeholder { color: rgba(255,255,255,.25); }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 13px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: .03em;
+      border: none;
+      cursor: pointer;
+      transition: all var(--trans);
+      font-family: 'Inter', sans-serif;
+      text-decoration: none;
+    }
+
+    .btn-gold { background: var(--gold); color: var(--black); }
+    .btn-gold:hover { background: var(--gold2); }
+    .btn-outline { background: transparent; color: var(--lgray); border: 1px solid rgba(255,255,255,.15); }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-green { background: var(--green); color: #fff; }
+    .btn-green:hover { background: #16a34a; }
+    .btn-red { background: transparent; color: var(--red); border: 1px solid rgba(239,68,68,.3); }
+    .btn-red:hover { background: rgba(239,68,68,.1); }
+
+    #login-error {
+      color: #ef4444;
+      font-size: 13px;
+      margin-top: 10px;
+      display: none;
+    }
+
+    /* ── APP ────────────────────────────────────────────── */
+    #screen-app { display: none; }
+
+    .topbar {
+      background: var(--dark);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .topbar-title {
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .topbar-title span { color: var(--gold); }
+
+    .stats-bar {
+      display: flex;
+      gap: 24px;
+      padding: 16px 24px;
+      background: var(--dark);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--gold);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--gray);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .main {
+      padding: 24px;
+      max-width: 760px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* ── SCANNER ────────────────────────────────────────── */
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .panel-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--gold);
+    }
+
+    .panel-body { padding: 20px; }
+
+    #video-wrapper {
+      position: relative;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      aspect-ratio: 4/3;
+      max-height: 280px;
+      display: none;
+    }
+
+    #video-wrapper video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .scan-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .scan-box {
+      width: 180px;
+      height: 180px;
+      border: 2px solid var(--gold);
+      border-radius: 12px;
+      box-shadow: 0 0 0 9999px rgba(0,0,0,.5);
+    }
+
+    #scan-status {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--gray);
+      text-align: center;
+    }
+
+    /* ── BUSCA MANUAL ───────────────────────────────────── */
+    .search-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .search-row .input { margin-bottom: 0; }
+
+    .search-row .btn { width: auto; padding: 12px 20px; white-space: nowrap; }
+
+    .results-list {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .result-item {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .result-info { flex: 1; min-width: 0; }
+
+    .result-name {
+      font-size: 15px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .result-email {
+      font-size: 12px;
+      color: var(--gray);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+
+    .badge-present { background: rgba(34,197,94,.15); color: var(--green); }
+    .badge-pending { background: rgba(245,184,0,.12); color: var(--gold); }
+
+    /* ── TOAST ──────────────────────────────────────────── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 8px 32px rgba(0,0,0,.4);
+      transition: transform .3s ease;
+      z-index: 999;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.success { border-color: rgba(34,197,94,.4); color: var(--green); }
+    .toast.error   { border-color: rgba(239,68,68,.4);  color: var(--red); }
+
+    /* ── LISTA DE PRESENÇA ──────────────────────────────── */
+    .attendance-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .attendance-table th {
+      text-align: left;
+      padding: 10px 12px;
+      color: var(--gray);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+
+    .attendance-table td {
+      padding: 11px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.04);
+      color: var(--lgray);
+    }
+
+    .attendance-table tr:last-child td { border-bottom: none; }
+
+    .empty-state {
+      text-align: center;
+      padding: 32px;
+      color: var(--gray);
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── LOGIN ── -->
+  <div id="screen-login">
+    <div class="login-card">
+      <p style="font-size:32px;margin-bottom:16px;">🎟️</p>
+      <h1>Admin Check-in</h1>
+      <p>MEC Summit 2026 · Acesso restrito à equipe</p>
+      <input type="password" class="input" id="input-senha" placeholder="Senha de acesso" />
+      <button class="btn btn-gold" onclick="login()">Entrar</button>
+      <p id="login-error">Senha incorreta.</p>
+    </div>
+  </div>
+
+  <!-- ── APP ── -->
+  <div id="screen-app">
+
+    <div class="topbar">
+      <div class="topbar-title">MEC Summit <span>2026</span> · Check-in</div>
+      <button class="btn btn-outline" style="width:auto;padding:8px 16px;font-size:12px;" onclick="logout()">Sair</button>
+    </div>
+
+    <div class="stats-bar">
+      <div class="stat">
+        <span class="stat-value" id="stat-total">0</span>
+        <span class="stat-label">Inscritos</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value" id="stat-present">0</span>
+        <span class="stat-label">Presentes</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value" id="stat-pct">0%</span>
+        <span class="stat-label">Taxa de presença</span>
+      </div>
+    </div>
+
+    <div class="main">
+
+      <!-- Scanner QR -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">📷 Scanner QR Code</span>
+          <button class="btn btn-gold" id="btn-scanner" style="width:auto;padding:8px 16px;font-size:12px;" onclick="toggleScanner()">Iniciar câmera</button>
+        </div>
+        <div class="panel-body">
+          <div id="video-wrapper">
+            <video id="video" playsinline muted></video>
+            <canvas id="canvas" style="display:none;"></canvas>
+            <div class="scan-overlay"><div class="scan-box"></div></div>
+          </div>
+          <p id="scan-status">Clique em "Iniciar câmera" para escanear o QR code do inscrito.</p>
+        </div>
+      </div>
+
+      <!-- Busca manual -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">🔍 Busca manual</span>
+        </div>
+        <div class="panel-body">
+          <div class="search-row">
+            <input type="text" class="input" id="input-busca" placeholder="Nome ou e-mail do inscrito…" oninput="buscar()" />
+          </div>
+          <div class="results-list" id="results-list">
+            <p class="empty-state">Digite para buscar inscritos.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lista de presença -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">✅ Presenças confirmadas</span>
+          <button class="btn btn-outline" style="width:auto;padding:8px 14px;font-size:12px;" onclick="exportCSV()">Exportar CSV</button>
+        </div>
+        <div class="panel-body" style="padding:0;overflow:auto;">
+          <table class="attendance-table" id="attendance-table">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Horário</th>
+              </tr>
+            </thead>
+            <tbody id="attendance-body">
+              <tr><td colspan="3" class="empty-state">Nenhuma presença registrada ainda.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Config: URL do Apps Script -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">⚙️ Configuração</span>
+        </div>
+        <div class="panel-body">
+          <label style="font-size:12px;color:var(--gray);display:block;margin-bottom:6px;">URL do Google Apps Script (backend)</label>
+          <input type="text" class="input" id="input-gas-url" placeholder="https://script.google.com/macros/s/…/exec" />
+          <button class="btn btn-outline" style="margin-top:10px;" onclick="salvarConfig()">Salvar configuração</button>
+        </div>
+      </div>
+
+    </div><!-- /main -->
+  </div><!-- /app -->
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ── CONFIGURAÇÃO ──────────────────────────────────────────
+    const SENHA_ADMIN = 'MEC2026'; // troque antes do evento
+    let GAS_URL = localStorage.getItem('gas_url') || '';
+    let inscritos  = JSON.parse(localStorage.getItem('mec_inscritos')  || '[]');
+    let presencas  = JSON.parse(localStorage.getItem('mec_presencas')  || '[]');
+    let scannerOn  = false;
+    let videoStream = null;
+    let scanInterval = null;
+
+    // ── LOGIN ─────────────────────────────────────────────────
+    function login() {
+      const senha = document.getElementById('input-senha').value;
+      if (senha === SENHA_ADMIN) {
+        document.getElementById('screen-login').style.display = 'none';
+        document.getElementById('screen-app').style.display   = 'block';
+        document.getElementById('input-gas-url').value = GAS_URL;
+        atualizarStats();
+        renderPresencas();
+      } else {
+        document.getElementById('login-error').style.display = 'block';
+      }
+    }
+
+    document.getElementById('input-senha').addEventListener('keydown', e => {
+      if (e.key === 'Enter') login();
+    });
+
+    function logout() {
+      document.getElementById('screen-login').style.display = 'flex';
+      document.getElementById('screen-app').style.display   = 'none';
+      pararScanner();
+    }
+
+    // ── STATS ─────────────────────────────────────────────────
+    function atualizarStats() {
+      const total   = inscritos.length;
+      const present = presencas.length;
+      const pct     = total > 0 ? Math.round((present / total) * 100) : 0;
+      document.getElementById('stat-total').textContent   = total;
+      document.getElementById('stat-present').textContent = present;
+      document.getElementById('stat-pct').textContent     = pct + '%';
+    }
+
+    // ── SCANNER ───────────────────────────────────────────────
+    function toggleScanner() {
+      scannerOn ? pararScanner() : iniciarScanner();
+    }
+
+    async function iniciarScanner() {
+      try {
+        const wrapper = document.getElementById('video-wrapper');
+        const video   = document.getElementById('video');
+        const btn     = document.getElementById('btn-scanner');
+
+        videoStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment' }
+        });
+
+        video.srcObject = videoStream;
+        await video.play();
+        wrapper.style.display = 'block';
+        btn.textContent = 'Parar câmera';
+        scannerOn = true;
+
+        const canvas = document.getElementById('canvas');
+        const ctx    = canvas.getContext('2d');
+
+        scanInterval = setInterval(() => {
+          if (video.readyState !== video.HAVE_ENOUGH_DATA) return;
+          canvas.width  = video.videoWidth;
+          canvas.height = video.videoHeight;
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const code = jsQR(imageData.data, imageData.width, imageData.height, {
+            inversionAttempts: 'dontInvert'
+          });
+          if (code) processarQR(code.data);
+        }, 300);
+
+      } catch (err) {
+        document.getElementById('scan-status').textContent =
+          'Câmera não disponível. Use a busca manual.';
+        console.error(err);
+      }
+    }
+
+    function pararScanner() {
+      clearInterval(scanInterval);
+      if (videoStream) videoStream.getTracks().forEach(t => t.stop());
+      document.getElementById('video-wrapper').style.display = 'none';
+      document.getElementById('btn-scanner').textContent = 'Iniciar câmera';
+      document.getElementById('scan-status').textContent =
+        'Clique em "Iniciar câmera" para escanear o QR code do inscrito.';
+      scannerOn = false;
+    }
+
+    let ultimoScan = '';
+    let ultimoScanTs = 0;
+
+    function processarQR(data) {
+      const now = Date.now();
+      if (data === ultimoScan && now - ultimoScanTs < 3000) return;
+      ultimoScan   = data;
+      ultimoScanTs = now;
+
+      try {
+        const payload = JSON.parse(data);
+        const email   = payload.email || atob(payload.token || '');
+        const nome    = payload.nome  || '';
+        if (email) registrarPresenca(email, nome, 'qr');
+      } catch {
+        // fallback: trata como email direto
+        if (data.includes('@')) registrarPresenca(data, '', 'qr');
+      }
+    }
+
+    // ── BUSCA MANUAL ──────────────────────────────────────────
+    function buscar() {
+      const q    = document.getElementById('input-busca').value.trim().toLowerCase();
+      const list = document.getElementById('results-list');
+
+      if (!q) {
+        list.innerHTML = '<p class="empty-state">Digite para buscar inscritos.</p>';
+        return;
+      }
+
+      const resultados = inscritos.filter(i =>
+        i.nome.toLowerCase().includes(q) || i.email.toLowerCase().includes(q)
+      );
+
+      if (!resultados.length) {
+        list.innerHTML = '<p class="empty-state">Nenhum inscrito encontrado.</p>';
+        return;
+      }
+
+      list.innerHTML = resultados.map(i => {
+        const presente = presencas.some(p => p.email === i.email);
+        return `
+          <div class="result-item">
+            <div class="result-info">
+              <div class="result-name">${i.nome || '—'}</div>
+              <div class="result-email">${i.email}</div>
+            </div>
+            <span class="badge ${presente ? 'badge-present' : 'badge-pending'}">
+              ${presente ? '✓ Presente' : 'Pendente'}
+            </span>
+            ${!presente
+              ? `<button class="btn btn-green" style="width:auto;padding:8px 14px;font-size:12px;"
+                   onclick="registrarPresenca('${i.email}','${(i.nome||'').replace(/'/g,"\\'")}','manual')">
+                   Check-in
+                 </button>`
+              : ''}
+          </div>`;
+      }).join('');
+    }
+
+    // ── REGISTRAR PRESENÇA ────────────────────────────────────
+    function registrarPresenca(email, nome, origem) {
+      if (presencas.some(p => p.email === email)) {
+        showToast('⚠️ ' + (nome || email) + ' já fez check-in.', 'error');
+        return;
+      }
+
+      const registro = { email, nome, horario: new Date().toLocaleTimeString('pt-BR'), origem };
+      presencas.push(registro);
+      localStorage.setItem('mec_presencas', JSON.stringify(presencas));
+
+      // Sync com backend (Apps Script)
+      if (GAS_URL) {
+        fetch(GAS_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'checkin', email, nome }),
+          headers: { 'Content-Type': 'application/json' }
+        }).catch(console.error);
+      }
+
+      atualizarStats();
+      renderPresencas();
+      buscar(); // atualiza busca se aberta
+
+      document.getElementById('scan-status').textContent =
+        '✅ Check-in confirmado: ' + (nome || email);
+
+      showToast('✅ Check-in: ' + (nome || email), 'success');
+    }
+
+    // ── RENDER LISTA ──────────────────────────────────────────
+    function renderPresencas() {
+      const tbody = document.getElementById('attendance-body');
+      if (!presencas.length) {
+        tbody.innerHTML = '<tr><td colspan="3" class="empty-state">Nenhuma presença registrada ainda.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = [...presencas].reverse().map(p => `
+        <tr>
+          <td>${p.nome || '—'}</td>
+          <td>${p.email}</td>
+          <td>${p.horario}</td>
+        </tr>`).join('');
+    }
+
+    // ── EXPORT CSV ────────────────────────────────────────────
+    function exportCSV() {
+      if (!presencas.length) { showToast('Nenhuma presença para exportar.', 'error'); return; }
+      const header = 'Nome,E-mail,Horário\n';
+      const rows   = presencas.map(p => `"${p.nome}","${p.email}","${p.horario}"`).join('\n');
+      const blob   = new Blob([header + rows], { type: 'text/csv;charset=utf-8;' });
+      const url    = URL.createObjectURL(blob);
+      const a      = document.createElement('a');
+      a.href = url; a.download = 'presencas-mec-summit-2026.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // ── CONFIG ────────────────────────────────────────────────
+    function salvarConfig() {
+      GAS_URL = document.getElementById('input-gas-url').value.trim();
+      localStorage.setItem('gas_url', GAS_URL);
+
+      // Tenta sincronizar inscritos do backend
+      if (GAS_URL) sincronizarInscritos();
+
+      showToast('Configuração salva.', 'success');
+    }
+
+    function sincronizarInscritos() {
+      fetch(GAS_URL + '?action=list')
+        .then(r => r.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            inscritos = data;
+            localStorage.setItem('mec_inscritos', JSON.stringify(inscritos));
+            atualizarStats();
+            showToast('Inscritos sincronizados: ' + inscritos.length, 'success');
+          }
+        })
+        .catch(() => showToast('Erro ao conectar ao backend.', 'error'));
+    }
+
+    // ── TOAST ─────────────────────────────────────────────────
+    let toastTimer;
+    function showToast(msg, type) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className   = 'toast show ' + (type || '');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.className = 'toast', 3000);
+    }
+  </script>
+
+</body>
+</html>
