@@ -7,8 +7,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
-  <!-- QR Code generator -->
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -67,11 +65,7 @@
       margin-bottom: 24px;
     }
 
-    h1 {
-      font-size: 22px;
-      font-weight: 800;
-      margin-bottom: 4px;
-    }
+    h1 { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
 
     .attendee-name {
       font-size: 28px;
@@ -88,20 +82,25 @@
       display: inline-block;
       margin-bottom: 24px;
       box-shadow: 0 8px 32px rgba(0,0,0,.3);
+      line-height: 0;
     }
 
-    #qr-canvas {
+    .qr-wrapper img {
       display: block;
+      width: 200px;
+      height: 200px;
     }
 
-    .qr-placeholder {
+    .qr-loading {
       width: 200px;
       height: 200px;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #ccc;
+      color: #999;
       font-size: 13px;
+      font-family: Inter, sans-serif;
+      line-height: 1.4;
     }
 
     .event-info {
@@ -121,7 +120,7 @@
       font-size: 13px;
       color: var(--lgray);
       line-height: 1.6;
-      margin-bottom: 28px;
+      margin-bottom: 24px;
     }
 
     .instruction strong { color: var(--gold); }
@@ -139,6 +138,7 @@
       transition: all var(--trans);
       border: none;
       cursor: pointer;
+      font-family: Inter, sans-serif;
     }
 
     .btn-outline {
@@ -149,29 +149,59 @@
 
     .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
 
-    .error-state {
-      padding: 40px 20px;
-    }
-
+    .error-state { padding: 40px 20px; }
     .error-state .ico { font-size: 48px; margin-bottom: 16px; }
     .error-state p { color: var(--lgray); font-size: 15px; line-height: 1.6; margin-bottom: 20px; }
+
+    /* Input de e-mail para acesso direto */
+    .direct-access {
+      margin-top: 32px;
+      border-top: 1px solid rgba(255,255,255,.07);
+      padding-top: 24px;
+    }
+
+    .direct-access p {
+      font-size: 12px;
+      color: var(--gray);
+      margin-bottom: 10px;
+    }
+
+    .direct-access .row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .direct-access input {
+      flex: 1;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 14px;
+      color: #fff;
+      font-family: Inter, sans-serif;
+      outline: none;
+    }
+
+    .direct-access input:focus { border-color: var(--gold); }
+    .direct-access input::placeholder { color: rgba(255,255,255,.25); }
+
+    .btn-gold { background: var(--gold); color: var(--black); }
+    .btn-gold:hover { background: var(--gold2); }
   </style>
 </head>
 <body>
 
-  <div class="card" id="card-main">
+  <div class="card">
     <p class="brand">MEC Summit 2026 · Check-in</p>
 
-    <div id="state-loading">
-      <p style="color:var(--gray);font-size:14px;">Carregando seu QR code...</p>
-    </div>
-
+    <!-- Estado: QR gerado com sucesso -->
     <div id="state-ok" style="display:none;">
       <h1>Olá,</h1>
       <p class="attendee-name" id="display-name">—</p>
 
       <div class="qr-wrapper">
-        <canvas id="qr-canvas"></canvas>
+        <img id="qr-img" src="" alt="QR Code de acesso" />
       </div>
 
       <div class="instruction">
@@ -188,62 +218,108 @@
       <a href="index.html" class="btn btn-outline">← Voltar ao site</a>
     </div>
 
-    <div id="state-error" style="display:none;" class="error-state">
-      <div class="ico">⚠️</div>
-      <p>
-        Link inválido ou incompleto.<br />
-        Use o link recebido no seu e-mail de confirmação.
+    <!-- Estado: sem email na URL -->
+    <div id="state-form" style="display:none;">
+      <div style="font-size:40px;margin-bottom:16px;">🎟️</div>
+      <h1 style="margin-bottom:8px;">Seu QR code</h1>
+      <p style="font-size:14px;color:var(--gray);margin-bottom:24px;line-height:1.6;">
+        Digite o e-mail usado na inscrição para gerar seu QR code de acesso.
       </p>
-      <a href="index.html#inscricao" class="btn btn-outline">Fazer inscrição</a>
+      <div class="direct-access" style="border:none;padding:0;margin:0;">
+        <div class="row">
+          <input type="email" id="input-email" placeholder="seu@email.com" />
+          <button class="btn btn-gold" onclick="gerarPorEmail()">Gerar</button>
+        </div>
+        <p id="form-error" style="color:#ef4444;font-size:12px;margin-top:8px;display:none;">
+          Digite um e-mail válido.
+        </p>
+      </div>
+      <p style="margin-top:20px;font-size:12px;color:var(--gray);">
+        Não se inscreveu ainda?
+        <a href="index.html#inscricao" style="color:var(--gold);">Inscreva-se grátis →</a>
+      </p>
+    </div>
+
+    <!-- Estado: carregando -->
+    <div id="state-loading">
+      <div class="qr-wrapper" style="margin:0 auto 16px;">
+        <div class="qr-loading">Gerando QR code…</div>
+      </div>
+      <p style="color:var(--gray);font-size:13px;">Aguarde um instante…</p>
     </div>
   </div>
 
   <script>
     (function () {
       const params = new URLSearchParams(window.location.search);
-      const email  = params.get('email') || '';
-      const nome   = params.get('nome')  || params.get('name') || '';
+      const email  = (params.get('email') || '').trim();
+      const nome   = (params.get('nome')  || params.get('name') || '').trim();
 
-      const stateLoading = document.getElementById('state-loading');
-      const stateOk      = document.getElementById('state-ok');
-      const stateError   = document.getElementById('state-error');
-
-      if (!email) {
-        stateLoading.style.display = 'none';
-        stateError.style.display   = 'block';
-        return;
+      if (email) {
+        renderQR(email, nome);
+      } else {
+        document.getElementById('state-loading').style.display = 'none';
+        document.getElementById('state-form').style.display    = 'block';
       }
 
-      // Token: base64 do email (lido pelo admin.html na câmera)
-      const token = btoa(email);
-
-      // Payload do QR code: JSON com token + email + nome
-      const payload = JSON.stringify({ token, email, nome });
-
-      // Nome a exibir
-      document.getElementById('display-name').textContent =
-        nome ? nome.split(' ')[0] : email;
-
-      // Gera QR code
-      QRCode.toCanvas(
-        document.getElementById('qr-canvas'),
-        payload,
-        {
-          width: 200,
-          margin: 0,
-          color: { dark: '#0C0C1E', light: '#FFFFFF' }
-        },
-        function (err) {
-          stateLoading.style.display = 'none';
-          if (err) {
-            stateError.style.display = 'block';
-            console.error(err);
-          } else {
-            stateOk.style.display = 'block';
-          }
+      // Enter no input
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && document.activeElement.id === 'input-email') {
+          gerarPorEmail();
         }
-      );
+      });
     })();
+
+    function gerarPorEmail() {
+      const email = document.getElementById('input-email').value.trim();
+      const errEl = document.getElementById('form-error');
+      if (!email || !email.includes('@')) {
+        errEl.style.display = 'block';
+        return;
+      }
+      errEl.style.display = 'none';
+      document.getElementById('state-form').style.display    = 'none';
+      document.getElementById('state-loading').style.display = 'block';
+      renderQR(email, '');
+    }
+
+    function renderQR(email, nome) {
+      // Payload lido pelo admin.html ao escanear
+      const payload = JSON.stringify({ email: email, nome: nome });
+
+      // Gera QR via API pública — sem dependência de biblioteca JS
+      const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/'
+        + '?size=200x200'
+        + '&margin=0'
+        + '&color=0C0C1E'
+        + '&bgcolor=FFFFFF'
+        + '&data=' + encodeURIComponent(payload);
+
+      const img = document.getElementById('qr-img');
+      img.src = qrUrl;
+
+      img.onload = function () {
+        document.getElementById('state-loading').style.display = 'none';
+        document.getElementById('display-name').textContent =
+          nome ? nome.split(' ')[0] : email;
+        document.getElementById('state-ok').style.display = 'block';
+      };
+
+      img.onerror = function () {
+        // Fallback: tenta gerar QR só com o email se o payload completo falhar
+        const fallbackUrl = 'https://api.qrserver.com/v1/create-qr-code/'
+          + '?size=200x200&margin=0&data=' + encodeURIComponent(email);
+        if (img.src !== fallbackUrl) {
+          img.src = fallbackUrl;
+        } else {
+          document.getElementById('state-loading').style.display = 'none';
+          document.getElementById('state-form').style.display    = 'block';
+          document.getElementById('form-error').textContent =
+            'Erro ao gerar QR code. Verifique sua conexão.';
+          document.getElementById('form-error').style.display = 'block';
+        }
+      };
+    }
   </script>
 
 </body>
